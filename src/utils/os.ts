@@ -1,5 +1,9 @@
 import * as os from 'os';
 
+/**
+ * 获取服务器的IP地址
+ * @returns {string[]} 服务器的IP地址列表
+ */
 export function getServerIps(): string[] {
   const interfaces = os.networkInterfaces();
   const ips: string[] = [];

@@ -21,9 +21,9 @@ interface MailOptions {
 
 @Injectable()
 export class MailService implements OnModuleInit {
-  private transporter: nodemailer.Transporter;
+  private readonly transporter: nodemailer.Transporter;
 
-  constructor(private configService: ConfigService) {
+  constructor(private readonly configService: ConfigService) {
     this.transporter = nodemailer.createTransport({
       // @ts-ignore
       host: configService.get<string>('EMAIL_HOST'),
@@ -53,7 +53,7 @@ export class MailService implements OnModuleInit {
   }
 
   /** 发送验证码邮件 */
-  async sendVerificationCode(email: string) {
+  async sendRegisterCode(email: string) {
     const code = Math.random().toString().slice(-6);
     const mailOptions: MailOptions = {
       from: this.configService.get<string>('EMAIL_USER')!,
@@ -61,11 +61,12 @@ export class MailService implements OnModuleInit {
       text: `【静夜聆雨】验证码：${code}，有限期为5分钟，请及时使用。如非本人操作，请忽略此邮件。`,
       subject: `【静夜聆雨】验证码`,
     };
-    await this.sendMail(mailOptions);
+    const result = await this.sendMail(mailOptions);
+    return { ...result, code };
   }
 
   /** 发送邮件 */
-  sendMail(mailOptions: MailOptions): Promise<any> {
+  sendMail(mailOptions: MailOptions): Promise<Record<string, any>> {
     return new Promise((resolve, reject) => {
       this.transporter.sendMail(
         mailOptions,

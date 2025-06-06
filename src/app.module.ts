@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SysModule } from './sys/sys.module';
 import Joi from 'joi';
-import { MailModule } from './common/mail/mail.module';
-import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -22,8 +20,6 @@ import { AppController } from './app.controller';
       }),
     }),
     SysModule,
-    MailModule,
   ],
-  controllers: [AppController],
 })
 export class AppModule {}

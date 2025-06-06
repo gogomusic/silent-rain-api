@@ -1,26 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSyDto } from './dto/create-sy.dto';
-import { UpdateSyDto } from './dto/update-sy.dto';
+import { RedisService } from 'src/common/redis/redis.service';
+import { MailService } from 'src/common/mail/mail.service';
+import { getRedisKey } from 'src/utils/redis';
+import { RedisKeyPrefix } from 'src/common/enum/redis-key.enum';
 
 @Injectable()
 export class SysService {
-  create(createSyDto: CreateSyDto) {
-    return 'This action adds a new sy';
-  }
+  constructor(
+    private readonly redisService: RedisService,
+    private readonly mailService: MailService,
+  ) {}
 
-  findAll() {
-    return `This action returns all sys`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} sy`;
-  }
-
-  update(id: number, updateSyDto: UpdateSyDto) {
-    return `This action updates a #${id} sy`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} sy`;
+  /** 发送注册邮箱验证码 */
+  async sendMailForRegister(email: string) {
+    const { code } = await this.mailService.sendRegisterCode(email);
+    const redisKey = getRedisKey(RedisKeyPrefix.REGISTER_CODE, email);
+    await this.redisService.set(redisKey, code, 5 * 60); // 设置验证码有效期为5分钟
+    return '发送成功';
   }
 }
