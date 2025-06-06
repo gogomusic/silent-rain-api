@@ -1,10 +1,29 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { SysModule } from './sys/sys.module';
+import Joi from 'joi';
+import { MailModule } from './common/mail/mail.module';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 
 @Module({
-  imports: [],
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath:
+        process.env.NODE_ENV === 'production'
+          ? '.env.production.local'
+          : '.env.development.local',
+      isGlobal: true,
+      cache: true,
+      validationSchema: Joi.object({
+        NODE_ENV: Joi.string()
+          .valid('development', 'production')
+          .default('development'),
+        PORT: Joi.number().port().default(3000),
+      }),
+    }),
+    SysModule,
+    MailModule,
+  ],
   controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
