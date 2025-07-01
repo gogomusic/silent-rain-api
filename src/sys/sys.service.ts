@@ -16,6 +16,10 @@ export class SysService {
     const { code } = await this.mailService.sendRegisterCode(email);
     const redisKey = getRedisKey(RedisKeyPrefix.REGISTER_CODE, email);
     await this.redisService.set(redisKey, code, 5 * 60); // 设置验证码有效期为5分钟
-    return '发送成功';
+    return {
+      code: 0,
+      message: '发送成功',
+      data: null,
+    };
   }
 }

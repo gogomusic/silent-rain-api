@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import {
   HttpException,
   HttpStatus,
@@ -22,7 +20,6 @@ interface MailOptions {
 @Injectable()
 export class MailService implements OnModuleInit {
   private readonly transporter: nodemailer.Transporter;
-
   constructor(private readonly configService: ConfigService) {
     this.transporter = nodemailer.createTransport({
       // @ts-ignore

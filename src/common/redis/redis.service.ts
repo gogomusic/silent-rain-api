@@ -33,7 +33,6 @@ export class RedisService {
     return await this.client.hGetAll(key);
   }
 
-  // TODO 检查是否正确
   /** 哈希操作 - 设置字段 */
   async hSet(
     key: string,
@@ -45,7 +44,7 @@ export class RedisService {
     return await this.client.hSet(key, newValue);
   }
 
-  /** 删除键 */
+  /** 删除字段 */
   async del(key: string): Promise<number> {
     return await this.client.del(key);
   }
