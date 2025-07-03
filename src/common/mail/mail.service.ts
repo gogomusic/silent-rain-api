@@ -1,13 +1,16 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-
 import {
   HttpException,
   HttpStatus,
   Injectable,
   OnModuleInit,
 } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
+import { Transporter, createTransport } from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
+import { getRedisKey } from 'src/utils/redis';
+import { RedisKeyPrefix } from '../enum/redis-key.enum';
+import dayjs from 'dayjs';
+import { RedisService } from '../redis/redis.service';
+import SMTPPool from 'nodemailer/lib/smtp-pool';
 
 interface MailOptions {
   from: string;
@@ -19,10 +22,20 @@ interface MailOptions {
 
 @Injectable()
 export class MailService implements OnModuleInit {
-  private readonly transporter: nodemailer.Transporter;
-  constructor(private readonly configService: ConfigService) {
-    this.transporter = nodemailer.createTransport({
-      // @ts-ignore
+  private readonly transporter: Transporter;
+  private readonly EMAIL_LIMIT_DAY: number;
+  private readonly EMAIL_LIMIT_HOUR: number;
+
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly redisService: RedisService,
+  ) {
+    this.EMAIL_LIMIT_DAY =
+      Number(configService.get<string>('EMAIL_LIMIT_DAY')) || 50;
+    console.log(typeof this.EMAIL_LIMIT_DAY);
+    this.EMAIL_LIMIT_HOUR =
+      Number(configService.get<string>('EMAIL_LIMIT_HOUR')) || 10;
+    this.transporter = createTransport({
       host: configService.get<string>('EMAIL_HOST'),
       port: configService.get<string>('EMAIL_PORT'),
       secure: configService.get<string>('EMAIL_SECURE'),
@@ -30,7 +43,7 @@ export class MailService implements OnModuleInit {
         user: configService.get<string>('EMAIL_USER'),
         pass: configService.get<string>('EMAIL_PASS'),
       },
-    });
+    } as SMTPPool.Options);
   }
 
   /** 测试连接配置 */
@@ -63,16 +76,36 @@ export class MailService implements OnModuleInit {
   }
 
   /** 发送邮件 */
-  sendMail(mailOptions: MailOptions): Promise<Record<string, any>> {
+  async sendMail(mailOptions: MailOptions): Promise<Record<string, any>> {
+    const email_limit_day_key = getRedisKey(
+      RedisKeyPrefix.EMAIL_SERVICE,
+      `limit_day_${dayjs().format('YYYYMMDD')}`,
+    );
+    const email_limit_hour_key = getRedisKey(
+      RedisKeyPrefix.EMAIL_SERVICE,
+      `limit_day_${dayjs().format('HH')}`,
+    );
+
+    const [dayCount, hourCount] = await Promise.all([
+      this.redisService.get(email_limit_day_key),
+      this.redisService.get(email_limit_hour_key),
+    ]);
+
+    if (Number(dayCount || '0') >= this.EMAIL_LIMIT_DAY) {
+      return { code: 1, message: '今日邮件服务器发送次数已达上限', data: null };
+    }
+    if (Number(hourCount || '0') >= this.EMAIL_LIMIT_HOUR) {
+      return {
+        code: 1,
+        message: '邮件服务器每小时发送次数已达上限',
+        data: null,
+      };
+    }
+
     return new Promise((resolve, reject) => {
       this.transporter.sendMail(
         mailOptions,
-        (
-          error,
-          info: {
-            envelope: Record<string, string[]>;
-          },
-        ) => {
+        (error, info: { envelope: Record<string, string[]> }) => {
           if (error) {
             reject(
               new HttpException(
@@ -81,7 +114,27 @@ export class MailService implements OnModuleInit {
               ),
             );
           } else {
-            resolve({ ...info.envelope });
+            void (async () => {
+              try {
+                await Promise.all([
+                  this.redisService.incr(email_limit_day_key),
+                  this.redisService.incr(email_limit_hour_key),
+                ]);
+                await this.redisService.expire(
+                  email_limit_day_key,
+                  60 * 60 * 24,
+                );
+                await this.redisService.expire(email_limit_hour_key, 60 * 60);
+                resolve({ ...info.envelope });
+              } catch {
+                reject(
+                  new HttpException(
+                    `邮件发送后更新Redis失败`,
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                  ),
+                );
+              }
+            })();
           }
         },
       );

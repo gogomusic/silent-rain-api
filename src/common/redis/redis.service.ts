@@ -48,4 +48,14 @@ export class RedisService {
   async del(key: string): Promise<number> {
     return await this.client.del(key);
   }
+
+  /** 自增操作 */
+  async incr(key: string): Promise<number> {
+    return await this.client.incr(key);
+  }
+
+  /** 设置过期时间 */
+  async expire(key: string, seconds: number): Promise<number> {
+    return await this.client.expire(key, seconds);
+  }
 }
