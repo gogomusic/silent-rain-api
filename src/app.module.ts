@@ -3,13 +3,12 @@ import { ConfigModule } from '@nestjs/config';
 import { SysModule } from './sys/sys.module';
 import Joi from 'joi';
 
+console.log('环境：', process.env.NODE_ENV);
+
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath:
-        process.env.NODE_ENV === 'production'
-          ? '.env.production.local'
-          : '.env.development.local',
+      envFilePath: `.env.${process.env.NODE_ENV}`,
       isGlobal: true,
       cache: true,
       validationSchema: Joi.object({
