@@ -30,30 +30,28 @@ export class MailService implements OnModuleInit {
     private readonly configService: ConfigService,
     private readonly redisService: RedisService,
   ) {
-    this.EMAIL_LIMIT_DAY =
-      Number(configService.get<string>('EMAIL_LIMIT_DAY')) || 50;
-    console.log(typeof this.EMAIL_LIMIT_DAY);
-    this.EMAIL_LIMIT_HOUR =
-      Number(configService.get<string>('EMAIL_LIMIT_HOUR')) || 10;
+    this.EMAIL_LIMIT_DAY = Number(configService.get('EMAIL_LIMIT_DAY')) || 50;
+    this.EMAIL_LIMIT_HOUR = Number(configService.get('EMAIL_LIMIT_HOUR')) || 10;
     this.transporter = createTransport({
-      host: configService.get<string>('EMAIL_HOST'),
-      port: configService.get<string>('EMAIL_PORT'),
-      secure: configService.get<string>('EMAIL_SECURE'),
+      host: configService.get('EMAIL_HOST'),
+      port: Number(configService.get('EMAIL_PORT')),
+      secure: configService.get('EMAIL_SECURE') === 'true',
       auth: {
-        user: configService.get<string>('EMAIL_USER'),
-        pass: configService.get<string>('EMAIL_PASS'),
+        user: configService.get('EMAIL_USER'),
+        pass: configService.get('EMAIL_PASS'),
       },
     } as SMTPPool.Options);
   }
 
   /** 测试连接配置 */
   async testConnection() {
+    const emailServerAddr = `${this.configService.get('EMAIL_HOST')}:${this.configService.get('EMAIL_PORT')}`;
     try {
       await this.transporter.verify();
-      console.log(`邮件服务器验证成功`);
+      console.log(`邮件服务器验证成功(${emailServerAddr})`);
       return true;
     } catch (error) {
-      console.error('邮件服务器验证失败', error);
+      console.error(`邮件服务器验证失败(${emailServerAddr})`, error);
       return false;
     }
   }
@@ -66,7 +64,7 @@ export class MailService implements OnModuleInit {
   async sendRegisterCode(email: string) {
     const code = Math.random().toString().slice(-6);
     const mailOptions: MailOptions = {
-      from: this.configService.get<string>('EMAIL_USER')!,
+      from: this.configService.get('EMAIL_USER')!,
       to: email,
       text: `【静夜聆雨】验证码：${code}，有限期为5分钟，请及时使用。如非本人操作，请忽略此邮件。`,
       subject: `【静夜聆雨】验证码`,
