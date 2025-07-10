@@ -66,7 +66,7 @@ export class MailService implements OnModuleInit {
     const mailOptions: MailOptions = {
       from: this.configService.get('EMAIL_USER')!,
       to: email,
-      text: `【静夜聆雨】验证码：${code}，有限期为5分钟，请及时使用。如非本人操作，请忽略此邮件。`,
+      text: `验证码：${code}，有限期为5分钟，请及时使用。如非本人操作，请忽略此邮件。`,
       subject: `【静夜聆雨】验证码`,
     };
     const result = await this.sendMail(mailOptions);
@@ -74,14 +74,14 @@ export class MailService implements OnModuleInit {
   }
 
   /** 发送邮件 */
-  async sendMail(mailOptions: MailOptions): Promise<Record<string, any>> {
+  async sendMail(mailOptions: MailOptions): Promise<Record<string, unknown>> {
     const email_limit_day_key = getRedisKey(
       RedisKeyPrefix.EMAIL_SERVICE,
       `limit_day_${dayjs().format('YYYYMMDD')}`,
     );
     const email_limit_hour_key = getRedisKey(
       RedisKeyPrefix.EMAIL_SERVICE,
-      `limit_day_${dayjs().format('HH')}`,
+      `limit_hour_${dayjs().format('HH')}`,
     );
 
     const [dayCount, hourCount] = await Promise.all([

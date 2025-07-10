@@ -55,7 +55,7 @@ export class RedisService {
   }
 
   /** 设置过期时间 */
-  async expire(key: string, seconds: number): Promise<number> {
+  async expire(key: string, seconds: number) {
     return await this.client.expire(key, seconds);
   }
 }

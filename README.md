@@ -45,3 +45,13 @@ $ pnpm run test:cov
 ## 部署
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+
+## 开发进度
+
+- [x] 创建前台网站、后台管理系统和后端项目
+- [ ] 部署到阿里云
+  - [x] 前台
+  - [ ] 后台
+  - [x] 后端
+- [x] 用户注册
+  - [ ] 注册时密码加密
