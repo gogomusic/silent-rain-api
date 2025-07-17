@@ -6,9 +6,11 @@ import Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
+const PORT = process.env.PORT || 9161;
 const envFilePath = `.env.${NODE_ENV}`;
-console.log('环境：', NODE_ENV);
+console.log('\n环境：', NODE_ENV);
 console.log('配置文件：', envFilePath);
+console.log('\n');
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ console.log('配置文件：', envFilePath);
         NODE_ENV: Joi.string()
           .valid('development', 'production')
           .default('development'),
-        PORT: Joi.number().port().default(3000),
+        PORT: Joi.number().port().default(PORT),
       }),
     }),
     TypeOrmModule.forRootAsync({

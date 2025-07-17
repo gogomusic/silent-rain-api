@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { getServerIps } from './utils/os';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+const PORT = process.env.PORT || 9161;
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const swaggerConfig = new DocumentBuilder()
@@ -13,12 +15,12 @@ async function bootstrap() {
   const documentFactory = () =>
     SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, documentFactory);
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(PORT);
 }
 bootstrap()
   .then(() => {
     console.log('\n服务启动成功');
     console.log(`IP: ${getServerIps().join(', ')}`);
-    console.log(`端口: ${process.env.PORT ?? 3000}\n`);
+    console.log(`端口: ${PORT}\n`);
   })
   .catch((error) => console.log(error));
