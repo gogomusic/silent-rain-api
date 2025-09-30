@@ -3,6 +3,7 @@ import { RedisService } from 'src/common/redis/redis.service';
 import { MailService } from 'src/common/mail/mail.service';
 import { getRedisKey } from 'src/utils/redis';
 import { RedisKeyPrefix } from 'src/common/enum/redis-key.enum';
+import { ResponseDto } from 'src/common/http/dto/response.dto';
 
 @Injectable()
 export class SysService {
@@ -16,10 +17,6 @@ export class SysService {
     const { code } = await this.mailService.sendRegisterCode(email);
     const redisKey = getRedisKey(RedisKeyPrefix.REGISTER_CODE, email);
     await this.redisService.set(redisKey, code, 5 * 60); // 设置验证码有效期为5分钟
-    return {
-      code: 0,
-      message: '发送成功',
-      data: null,
-    };
+    return ResponseDto.success();
   }
 }

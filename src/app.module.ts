@@ -8,9 +8,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const PORT = process.env.PORT || 9161;
 const envFilePath = `.env.${NODE_ENV}`;
-console.log('\n环境：', NODE_ENV);
-console.log('配置文件：', envFilePath);
-console.log('\n');
+console.info('\n环境：', NODE_ENV);
+console.info('配置文件：', `${envFilePath}\n`);
 
 @Module({
   imports: [

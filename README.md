@@ -48,10 +48,17 @@ When you're ready to deploy your NestJS application to production, there are som
 
 ## 开发进度
 
-- [x] 创建前台网站、后台管理系统和后端项目
-- [ ] 部署到阿里云
-  - [x] 前台
-  - [ ] 后台
-  - [x] 后端
-- [x] 用户注册
+- [X] 创建前台网站、后台管理系统和后端项目
+- [X] 部署到阿里云
+  - [X] 前台
+  - [X] 后台
+  - [X] 后端
+- [ ] 用户注册
+  - [X] 注册
   - [ ] 注册时密码加密
+- [ ] 用户登录
+  - [X] 登录
+  - [ ] 增加验证方式（如滑块验证、验证码等）
+  - [ ] 密码加密
+  - [ ] 过期时间：短 Token（15 min）+ 长 Refresh Token（7 d）
+- [ ] 日志

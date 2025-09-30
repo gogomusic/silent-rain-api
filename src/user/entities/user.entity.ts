@@ -1,4 +1,5 @@
 import { UserType } from 'src/common/enum/common.enum';
+
 import {
   Column,
   CreateDateColumn,

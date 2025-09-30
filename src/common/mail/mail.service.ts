@@ -48,7 +48,7 @@ export class MailService implements OnModuleInit {
     const emailServerAddr = `${this.configService.get('EMAIL_HOST')}:${this.configService.get('EMAIL_PORT')}`;
     try {
       await this.transporter.verify();
-      console.log(`邮件服务器验证成功(${emailServerAddr})`);
+      console.info(`邮件服务器验证成功(${emailServerAddr})`);
       return true;
     } catch (error) {
       console.error(`邮件服务器验证失败(${emailServerAddr})`, error);
@@ -90,11 +90,15 @@ export class MailService implements OnModuleInit {
     ]);
 
     if (Number(dayCount || '0') >= this.EMAIL_LIMIT_DAY) {
-      return { code: 1, message: '今日邮件服务器发送次数已达上限', data: null };
+      return {
+        code: HttpStatus.BAD_REQUEST,
+        message: '今日邮件服务器发送次数已达上限',
+        data: null,
+      };
     }
     if (Number(hourCount || '0') >= this.EMAIL_LIMIT_HOUR) {
       return {
-        code: 1,
+        code: HttpStatus.BAD_REQUEST,
         message: '邮件服务器每小时发送次数已达上限',
         data: null,
       };

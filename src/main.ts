@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { getServerIps } from './utils/os';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { TransformInterceptor } from './common/http/transform-interceptor';
+import { HttpExceptionFilter } from './common/http/http-exception.filter';
 
 const PORT = process.env.PORT || 9161;
 
@@ -15,12 +17,15 @@ async function bootstrap() {
   const documentFactory = () =>
     SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, documentFactory);
-  await app.listen(PORT);
+  await app
+    .useGlobalFilters(new HttpExceptionFilter())
+    .useGlobalInterceptors(new TransformInterceptor())
+    .listen(PORT);
 }
 bootstrap()
   .then(() => {
-    console.log('\n服务启动成功');
-    console.log(`IP: ${getServerIps().join(', ')}`);
-    console.log(`端口: ${PORT}\n`);
+    console.info('\n服务启动成功');
+    console.info(`IP: ${getServerIps().join(', ')}`);
+    console.info(`端口: ${PORT}\n`);
   })
-  .catch((error) => console.log(error));
+  .catch((error) => console.error(error));
