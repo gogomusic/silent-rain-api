@@ -16,12 +16,15 @@ async function bootstrap() {
     .build();
   const documentFactory = () =>
     SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api', app, documentFactory);
+  SwaggerModule.setup('api', app, documentFactory, {
+    jsonDocumentUrl: 'api-json',
+  });
   await app
     .useGlobalFilters(new HttpExceptionFilter())
     .useGlobalInterceptors(new TransformInterceptor())
     .listen(PORT);
 }
+
 bootstrap()
   .then(() => {
     console.info('\n服务启动成功');

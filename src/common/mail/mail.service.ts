@@ -20,6 +20,8 @@ interface MailOptions {
   html?: string;
 }
 
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
 @Injectable()
 export class MailService implements OnModuleInit {
   private readonly transporter: Transporter;
@@ -45,6 +47,10 @@ export class MailService implements OnModuleInit {
 
   /** 测试连接配置 */
   async testConnection() {
+    if (NODE_ENV === 'development') {
+      console.info('开发环境，跳过邮件服务器验证');
+      return true;
+    }
     const emailServerAddr = `${this.configService.get('EMAIL_HOST')}:${this.configService.get('EMAIL_PORT')}`;
     try {
       await this.transporter.verify();

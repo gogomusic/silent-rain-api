@@ -2,7 +2,6 @@ import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { SysService } from './sys.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { LoginUserDto } from 'src/user/dto/login-user.dto';
 import { UserService } from 'src/user/user.service';
 import { ApiGenericResponse } from 'src/common/decorators/api-generic-response.decorator';
 
@@ -32,15 +31,5 @@ export class SysController {
   @ApiGenericResponse('用户注册成功')
   register(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
-  }
-
-  /** 登录 */
-  @ApiOperation({
-    summary: '登录',
-  })
-  @Post('login')
-  @ApiGenericResponse('用户登录成功', String)
-  login(@Body() LoginUserDto: LoginUserDto) {
-    return this.userService.login(LoginUserDto);
   }
 }

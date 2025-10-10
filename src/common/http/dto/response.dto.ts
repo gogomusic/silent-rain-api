@@ -34,7 +34,7 @@ export class ResponseDto<T = any> implements ResponseInterface<T> {
   /** 成功响应 */
   static success<T>(
     data?: T,
-    message: string = '操作成功',
+    message: string = 'success',
     code: HttpStatus = HttpStatus.OK,
   ): ResponseDto<T> {
     return new ResponseDto<T>(code, message, data);

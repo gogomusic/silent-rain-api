@@ -4,6 +4,7 @@ import { SysModule } from './sys/sys.module';
 import { UserModule } from './user/user.module';
 import Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './common/auth/auth.module';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const PORT = process.env.PORT || 9161;
@@ -43,6 +44,7 @@ console.info('配置文件：', `${envFilePath}\n`);
     }),
     SysModule,
     UserModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

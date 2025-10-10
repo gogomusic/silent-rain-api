@@ -8,8 +8,6 @@ import { RedisKeyPrefix } from 'src/common/enum/redis-key.enum';
 import { RedisService } from 'src/common/redis/redis.service';
 import { compare, genSalt, hash } from 'bcryptjs';
 import { plainToInstance } from 'class-transformer';
-import { LoginUserDto } from './dto/login-user.dto';
-import { JwtService } from '@nestjs/jwt';
 import { ResponseDto } from 'src/common/http/dto/response.dto';
 
 @Injectable()
@@ -18,7 +16,6 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly redisService: RedisService,
-    private readonly jwtService: JwtService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -75,35 +72,32 @@ export class UserService {
     return ResponseDto.success(null, '注册成功');
   }
 
-  async login(LoginUserDto: LoginUserDto) {
+  async validateUser(username: string, password: string) {
     const user = await this.userRepository.findOne({
       where: {
-        username: LoginUserDto.username,
+        username: username,
       },
     });
     if (!user) {
       return ResponseDto.error('账号或密码错误', HttpStatus.EXPECTATION_FAILED);
     }
-    const checkPassword = await compare(LoginUserDto.password, user.password);
+    const checkPassword = await compare(password, user.password);
     if (!checkPassword) {
       return ResponseDto.error('账号或密码错误', HttpStatus.EXPECTATION_FAILED);
     }
     if (user.status === 0) {
       return ResponseDto.error('此账号已被禁用', HttpStatus.FORBIDDEN);
     }
+    const { password: _password, salt, ...rest } = user;
+    return rest;
+  }
+
+  async findOne(id: number) {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) return ResponseDto.error('用户不存在', HttpStatus.NOT_FOUND);
     const { password, salt, ...rest } = user;
-    const access_token = this.generateAccessToken(rest);
-    return ResponseDto.success(access_token, '登录成功');
+    return rest;
   }
-
-  /** 生成Token */
-  generateAccessToken(payload: Record<string, any>): string {
-    return this.jwtService.sign(payload);
-  }
-
-  // findOne(id: number) {
-  //   return `This action returns a #${id} user`;
-  // }
 
   // update(id: number, updateUserDto: UpdateUserDto) {
   //   return `This action updates a #${id} user`;
