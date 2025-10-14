@@ -63,6 +63,7 @@ When you're ready to deploy your NestJS application to production, there are som
   - [ ] 增加验证方式（如滑块验证、验证码等）
   - [X] 密码加密
   - [ ] 过期时间：短 Token（15 min）+ 长 Refresh Token（7 d）
+  - [ ] 用户信息从token里拿，如果用户信息变了该怎么处理？
 - [ ] 退出登录
 - [ ] 忘记密码找回功能
 - [ ] 日志

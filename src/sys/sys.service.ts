@@ -52,7 +52,6 @@ export class SysService {
       throw new UnauthorizedException('无效的密钥标识');
     }
     const data = key.decrypt(encryptedData, 'utf8');
-    this.keys.delete(keyId); // 用完即删
     return data;
   }
 }

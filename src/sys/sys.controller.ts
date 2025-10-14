@@ -31,7 +31,7 @@ export class SysController {
     summary: '注册',
   })
   @Post('register')
-  @ApiGenericResponse('用户注册成功')
+  @ApiGenericResponse()
   @AllowNoToken()
   register(@Body() createUserDto: CreateUserDto) {
     return this.userService.register(createUserDto);
@@ -42,7 +42,7 @@ export class SysController {
     summary: '公钥接口',
   })
   @Get('getPublicKey')
-  @ApiGenericResponse('获取公钥成功', RsaDto)
+  @ApiGenericResponse({ model: RsaDto })
   @AllowNoToken()
   getPublicKey(@Query('key_id') key_id?: string) {
     return this.sysService.createRsaKeyPair(key_id);

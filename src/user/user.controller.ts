@@ -12,8 +12,7 @@ import { AllowNoToken } from 'src/common/decorators/token-decorator';
 import { ResponseDto } from 'src/common/http/dto/response.dto';
 import { CurrentUserInfoDto } from './dto/current-user-info.dto';
 import { AllowNoPermission } from 'src/common/decorators/permission-decorator';
-// import { CreateUserDto } from './dto/create-user.dto';
-// import { UpdateUserDto } from './dto/update-user.dto';
+import { UserListReqDto } from './dto/user-list.req.dto';
 
 @ApiTags('用户 /user')
 @Controller('user')
@@ -27,7 +26,7 @@ export class UserController {
     summary: '登录',
   })
   @Post('login')
-  @ApiGenericResponse('用户登录成功', String)
+  @ApiGenericResponse({ model: String })
   @AllowNoToken()
   @UseGuards(LocalAuthGuard)
   login(
@@ -42,7 +41,7 @@ export class UserController {
   @ApiOperation({
     summary: '用户详情',
   })
-  @ApiGenericResponse('用户详情', UserInfoDto)
+  @ApiGenericResponse({ model: UserInfoDto })
   @Get('info')
   findOne(@Query('id') id: string) {
     return this.userService.findOne({ id: +id });
@@ -51,7 +50,7 @@ export class UserController {
   @ApiOperation({
     summary: '当前登陆用户详情',
   })
-  @ApiGenericResponse('当前登陆用户详情', CurrentUserInfoDto)
+  @ApiGenericResponse({ model: CurrentUserInfoDto })
   @Get('current')
   @AllowNoPermission()
   findCurrent(@Req() req: { user: User }) {
@@ -71,9 +70,12 @@ export class UserController {
   @ApiOperation({
     summary: '用户列表',
   })
-  @ApiGenericResponse('用户列表', Array<UserInfoDto>)
-  @Get('list')
-  list() {
-    return this.userService.findAll();
+  @ApiGenericResponse({
+    model: UserInfoDto,
+    isList: true,
+  })
+  @Post('list')
+  list(@Body() dto: UserListReqDto) {
+    return this.userService.getUserList(dto);
   }
 }

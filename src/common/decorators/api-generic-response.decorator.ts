@@ -19,10 +19,12 @@ type TModelType =
  * - 如果指定了 model，会根据类型生成对应的 schema，并将其作为 data 字段嵌入 ResponseDto。
  * - 如果未指定 model，则直接使用 ResponseDto 作为响应类型。
  */
-export function ApiGenericResponse<TModel extends TModelType>(
-  description = 'success',
-  model?: TModel,
-) {
+export function ApiGenericResponse<TModel extends TModelType>(params?: {
+  description?: string;
+  model?: TModel;
+  isList?: boolean;
+}) {
+  const { description = '成功', model, isList = false } = params || {};
   if (model) {
     let dataSchema;
     // 针对原始类型处理
@@ -33,7 +35,17 @@ export function ApiGenericResponse<TModel extends TModelType>(
     } else if (model === Boolean) {
       dataSchema = { type: 'boolean' };
     } else {
-      dataSchema = { $ref: getSchemaPath(model) };
+      dataSchema = isList
+        ? {
+            type: 'object',
+            properties: {
+              list: { type: 'array', items: { $ref: getSchemaPath(model) } },
+              current: { type: 'number', example: 1 },
+              pageSize: { type: 'number', example: 10 },
+              total: { type: 'number', example: 100 },
+            },
+          }
+        : { $ref: getSchemaPath(model) };
     }
     return applyDecorators(
       ApiExtraModels(ResponseDto, model),

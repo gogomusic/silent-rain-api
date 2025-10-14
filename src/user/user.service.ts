@@ -2,7 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { getRedisKey } from 'src/utils/redis';
 import { RedisKeyPrefix } from 'src/common/enum/redis-key.enum';
 import { RedisService } from 'src/common/redis/redis.service';
@@ -12,6 +12,7 @@ import { ResponseDto } from 'src/common/http/dto/response.dto';
 import { DataSource } from 'typeorm';
 import { UserType } from 'src/common/enum/common.enum';
 import { SysService } from 'src/sys/sys.service';
+import { UserListReqDto } from './dto/user-list.req.dto';
 
 @Injectable()
 export class UserService {
@@ -187,18 +188,20 @@ export class UserService {
     return ResponseDto.success();
   }
 
-  /** 分页获取用户列表 */
-  async findAll(page: number = 1, pageSize: number = 10) {
+  /** 获取用户列表(分页) */
+  async getUserList(dto?: UserListReqDto) {
+    const { current = 1, pageSize = 10, username } = dto || {};
+    const where = username ? { username: Like(`%${username}%`) } : undefined;
     const [users, total] = await this.userRepository.findAndCount({
-      skip: (page - 1) * pageSize,
+      skip: (current - 1) * pageSize,
       take: pageSize,
-      order: { create_time: 'DESC' },
+      order: { update_time: 'DESC' },
+      where,
       select: [
         'id',
         'username',
         'nickname',
         'email',
-        'user_type',
         'status',
         'avatar',
         'description',
@@ -210,9 +213,8 @@ export class UserService {
     return ResponseDto.success({
       list: users,
       total,
-      page,
+      current,
       pageSize,
-      totalPages: Math.ceil(total / pageSize),
     });
   }
 }
