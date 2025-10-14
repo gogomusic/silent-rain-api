@@ -2,15 +2,14 @@ import { HttpStatus } from '@nestjs/common';
 import { ResponseInterface } from './response.interface';
 import { ApiProperty } from '@nestjs/swagger';
 
-function isSuccessStatus(code: HttpStatus): boolean {
+function isSuccessStatus(code: number | string): boolean {
   return Number(code) >= 200 && Number(code) < 300;
 }
 
 /** 标准响应格式 */
 export class ResponseDto<T = any> implements ResponseInterface<T> {
   @ApiProperty({
-    enum: HttpStatus,
-    enumName: 'HttpStatus',
+    type: 'number',
     description: '响应状态码',
   })
   readonly code: HttpStatus;
@@ -18,16 +17,13 @@ export class ResponseDto<T = any> implements ResponseInterface<T> {
   readonly data?: T;
   @ApiProperty({ description: '响应消息' })
   readonly message: string;
-  @ApiProperty({ description: '响应时间戳' })
-  readonly timestamp: number;
   @ApiProperty({ description: '请求是否成功' })
   readonly success: boolean;
 
-  constructor(code: HttpStatus, message: string, data?: T) {
+  constructor(code: number, message: string, data?: T) {
     this.code = code;
     this.message = message;
     this.data = data;
-    this.timestamp = Date.now();
     this.success = isSuccessStatus(code);
   }
 

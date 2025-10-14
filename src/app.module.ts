@@ -5,6 +5,10 @@ import { UserModule } from './user/user.module';
 import Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './common/auth/auth.module';
+import { PermissionModule } from './permission/permission.module';
+import { RoleModule } from './role/role.module';
+import { RoleAuthGuard } from './common/auth/role-auth.guard';
+import { JwtAuthGuard } from './common/auth/jwt-auth.guard';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const PORT = process.env.PORT || 9161;
@@ -45,6 +49,18 @@ console.info('配置文件：', `${envFilePath}\n`);
     SysModule,
     UserModule,
     AuthModule,
+    PermissionModule,
+    RoleModule,
+  ],
+  providers: [
+    {
+      provide: 'APP_GUARD',
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: 'APP_GUARD',
+      useClass: RoleAuthGuard,
+    },
   ],
 })
 export class AppModule {}

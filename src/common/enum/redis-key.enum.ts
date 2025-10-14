@@ -6,4 +6,6 @@ export const enum RedisKeyPrefix {
   EMAIL_SERVICE = 'email_service:',
   /** 用户信息 */
   USER_INFO = 'user:info',
+  /** token黑名单 */
+  TOKEN_BLACK_LIST = 'token:blacklist',
 }

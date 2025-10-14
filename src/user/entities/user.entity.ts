@@ -1,18 +1,10 @@
+import { BasicEntity } from 'src/common/entity/time.entity';
 import { UserType } from 'src/common/enum/common.enum';
 
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
 @Entity()
-export class User {
-  @PrimaryGeneratedColumn({ type: 'int' })
-  id: number;
-
+export class User extends BasicEntity {
   @Column({
     type: 'varchar',
     length: 32,
@@ -21,6 +13,15 @@ export class User {
     comment: '用户名',
   })
   username: string;
+
+  @Column({
+    type: 'varchar',
+    length: 32,
+    nullable: false,
+    unique: true,
+    comment: '昵称',
+  })
+  nickname: string;
 
   @Column({
     type: 'varchar',
@@ -41,7 +42,7 @@ export class User {
     comment: '用户类型 0超级管理员 1普通用户',
     default: 1,
   })
-  userType: UserType;
+  user_type: UserType;
 
   @Column({
     type: 'varchar',
@@ -63,11 +64,5 @@ export class User {
   avatar: string;
 
   @Column({ type: 'varchar', comment: '描述', default: '' })
-  desc: string;
-
-  @CreateDateColumn({ type: 'timestamp', comment: '创建时间' })
-  createTime: Date;
-
-  @UpdateDateColumn({ type: 'timestamp', comment: '更新时间' })
-  updateTime: Date;
+  description: string;
 }

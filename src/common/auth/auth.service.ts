@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
+import { ResponseDto } from '../http/dto/response.dto';
 
 @Injectable()
 export class AuthService {
@@ -9,8 +10,12 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
-  async validateUser(username: string, password: string): Promise<any> {
-    return this.userService.validateUser(username, password);
+  async validateUser(
+    username: string,
+    password: string,
+    key_id: string,
+  ): Promise<ResponseDto<User>> {
+    return this.userService.validateUser(username, password, key_id);
   }
 
   /** 生成Token */

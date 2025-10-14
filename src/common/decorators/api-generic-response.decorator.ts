@@ -9,7 +9,7 @@ type TModelType =
   | BooleanConstructor;
 
 /**
- * 为接口响应生成通用的 Swagger 文档装饰器。
+ * 为接口响应生成通用的 Swagger 文档的装饰器。
  *
  * @template TModel 响应数据的模型类型
  * @param description 响应描述，默认为 'success'

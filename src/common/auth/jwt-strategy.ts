@@ -7,7 +7,7 @@ import { User } from 'src/user/entities/user.entity';
 /** JWT身份验证策略 */
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly configService: ConfigService) {
+  constructor(configService: ConfigService) {
     super({
       // JWT 会从 HTTP 请求头的 Authorization 字段中提取 token，格式为 Bearer <token>
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
