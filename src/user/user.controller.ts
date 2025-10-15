@@ -13,6 +13,7 @@ import { ResponseDto } from 'src/common/http/dto/response.dto';
 import { CurrentUserInfoDto } from './dto/current-user-info.dto';
 import { AllowNoPermission } from 'src/common/decorators/permission-decorator';
 import { UserListReqDto } from './dto/user-list.req.dto';
+import { UpdateSelfDto } from './dto/update-self.dto';
 
 @ApiTags('用户 /user')
 @Controller('user')
@@ -77,5 +78,15 @@ export class UserController {
   @Post('list')
   list(@Body() dto: UserListReqDto) {
     return this.userService.getUserList(dto);
+  }
+
+  @ApiOperation({
+    summary: '修改个人资料',
+  })
+  @Post('updateSelf')
+  @ApiGenericResponse()
+  @AllowNoPermission()
+  updateSelf(@Body() data: UpdateSelfDto) {
+    return this.userService.updateSelf(data);
   }
 }

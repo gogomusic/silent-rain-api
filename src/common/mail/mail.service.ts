@@ -98,14 +98,14 @@ export class MailService implements OnModuleInit {
     if (Number(dayCount || '0') >= this.EMAIL_LIMIT_DAY) {
       return {
         code: HttpStatus.BAD_REQUEST,
-        message: '今日邮件服务器发送次数已达上限',
+        msg: '今日邮件服务器发送次数已达上限',
         data: null,
       };
     }
     if (Number(hourCount || '0') >= this.EMAIL_LIMIT_HOUR) {
       return {
         code: HttpStatus.BAD_REQUEST,
-        message: '邮件服务器每小时发送次数已达上限',
+        msg: '邮件服务器每小时发送次数已达上限',
         data: null,
       };
     }

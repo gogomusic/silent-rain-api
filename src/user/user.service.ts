@@ -2,7 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { getRedisKey } from 'src/utils/redis';
 import { RedisKeyPrefix } from 'src/common/enum/redis-key.enum';
 import { RedisService } from 'src/common/redis/redis.service';
@@ -13,6 +13,7 @@ import { DataSource } from 'typeorm';
 import { UserType } from 'src/common/enum/common.enum';
 import { SysService } from 'src/sys/sys.service';
 import { UserListReqDto } from './dto/user-list.req.dto';
+import { UpdateSelfDto } from './dto/update-self.dto';
 
 @Injectable()
 export class UserService {
@@ -133,17 +134,25 @@ export class UserService {
         'u.update_time AS update_time',
         'ur.role_id AS role_id',
         'p.code AS permission_code',
+        'f.id AS avatar_file_id',
+        'f.key AS avatar_file_path',
+        'f.original_name AS avatar_file_original_name',
       ])
       .from('user', 'u')
       .leftJoin('user_role', 'ur', 'u.id = ur.user_id')
       .leftJoin('role_permission', 'rp', 'ur.role_id=rp.role_id')
       .leftJoin('permission', 'p', 'rp.permission_id = p.id')
+      .leftJoin('file', 'f', 'u.avatar = f.id')
       .where('u.id = :id', { id });
 
     const enrichedData: (User & {
       role_id?: number;
       permission_code?: string;
+      avatar_file_id?: number;
+      avatar_file_path?: string;
+      avatar_file_original_name?: string;
     })[] = await queryBuilder.getRawMany();
+
     if (enrichedData.length === 0)
       return ResponseDto.error('用户不存在', HttpStatus.NOT_FOUND);
 
@@ -176,9 +185,17 @@ export class UserService {
       ...enrichedData[0],
       roles,
       permissions: isGetPerm ? permissions : undefined,
+      avatar_info: {
+        file_id: enrichedData[0].avatar_file_id,
+        file_path: enrichedData[0].avatar_file_path,
+        file_original_name: enrichedData[0].avatar_file_original_name,
+      },
     };
     delete user.role_id;
     delete user.permission_code;
+    delete user.avatar_file_id;
+    delete user.avatar_file_path;
+    delete user.avatar_file_original_name;
 
     return user;
   }
@@ -191,30 +208,90 @@ export class UserService {
   /** 获取用户列表(分页) */
   async getUserList(dto?: UserListReqDto) {
     const { current = 1, pageSize = 10, username } = dto || {};
-    const where = username ? { username: Like(`%${username}%`) } : undefined;
-    const [users, total] = await this.userRepository.findAndCount({
-      skip: (current - 1) * pageSize,
-      take: pageSize,
-      order: { update_time: 'DESC' },
-      where,
-      select: [
-        'id',
-        'username',
-        'nickname',
-        'email',
-        'status',
-        'avatar',
-        'description',
-        'create_time',
-        'update_time',
-      ],
+    const queryBuilder = this.userRepository
+      .createQueryBuilder('u')
+      .leftJoinAndSelect('file', 'f', 'u.avatar = f.id')
+      .select([
+        'u.id AS id',
+        'u.username AS username',
+        'u.nickname AS nickname',
+        'u.email AS email',
+        'u.status AS status',
+        'u.avatar AS avatar',
+        'u.description AS description',
+        'u.create_time AS create_time',
+        'u.update_time AS update_time',
+        'f.id AS avatar_file_id',
+        'f.key AS avatar_file_path',
+        'f.original_name AS avatar_file_original_name',
+      ])
+      .orderBy('u.update_time', 'DESC')
+      .skip((current - 1) * pageSize)
+      .take(pageSize);
+
+    if (username) {
+      queryBuilder.where('u.username LIKE :username', {
+        username: `%${username}%`,
+      });
+    }
+
+    const users: (User & {
+      avatar_file_id?: number;
+      avatar_file_path?: string;
+      avatar_file_original_name?: string;
+    })[] = await queryBuilder.getRawMany();
+    const total = await queryBuilder.getCount();
+    const list = users.map((user) => {
+      const {
+        avatar_file_id,
+        avatar_file_path,
+        avatar_file_original_name,
+        ...rest
+      } = user;
+      const avatar_info = {
+        file_id: user.avatar_file_id as number,
+        file_path: user.avatar_file_path as string,
+        file_original_name: user.avatar_file_original_name as string,
+      };
+      return {
+        ...rest,
+        avatar_info,
+      };
     });
 
     return ResponseDto.success({
-      list: users,
+      list,
       total,
       current,
       pageSize,
     });
+  }
+
+  /** 更新个人资料 */
+  async updateSelf(updateSelfDto: UpdateSelfDto) {
+    const { id } = updateSelfDto;
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      return ResponseDto.error('用户不存在', HttpStatus.NOT_FOUND);
+    }
+    const updatedUser = plainToInstance(
+      User,
+      {
+        ...user,
+        ...updateSelfDto,
+      },
+      {
+        ignoreDecorators: true,
+      },
+    );
+    const result = await this.userRepository.save(updatedUser);
+    const {
+      password: _password,
+      salt: _salt,
+      ...rest
+    } = result as Partial<User & UpdateSelfDto>;
+    const redisKey = getRedisKey(RedisKeyPrefix.USER_INFO, rest.id);
+    await this.redisService.hSet(redisKey, rest);
+    return ResponseDto.success(null, '更新成功');
   }
 }

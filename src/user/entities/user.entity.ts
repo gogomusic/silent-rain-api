@@ -61,7 +61,7 @@ export class User extends BasicEntity {
   status: number;
 
   @Column({ type: 'varchar', comment: '头像', default: '' })
-  avatar: string;
+  avatar: number;
 
   @Column({ type: 'varchar', comment: '描述', default: '' })
   description: string;

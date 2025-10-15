@@ -16,13 +16,13 @@ export class ResponseDto<T = any> implements ResponseInterface<T> {
   @ApiProperty({ description: '响应数据', required: false })
   readonly data?: T;
   @ApiProperty({ description: '响应消息' })
-  readonly message: string;
+  readonly msg: string;
   @ApiProperty({ description: '请求是否成功' })
   readonly success: boolean;
 
-  constructor(code: number, message: string, data?: T) {
+  constructor(code: number, msg: string, data?: T) {
     this.code = code;
-    this.message = message;
+    this.msg = msg;
     this.data = data;
     this.success = isSuccessStatus(code);
   }
@@ -30,17 +30,14 @@ export class ResponseDto<T = any> implements ResponseInterface<T> {
   /** 成功响应 */
   static success<T>(
     data?: T,
-    message: string = 'success',
+    msg: string = 'success',
     code: HttpStatus = HttpStatus.OK,
   ): ResponseDto<T> {
-    return new ResponseDto<T>(code, message, data);
+    return new ResponseDto<T>(code, msg, data);
   }
 
   /** 异常响应 */
-  static error(
-    message = '操作失败',
-    code = HttpStatus.BAD_REQUEST,
-  ): ResponseDto {
-    return new ResponseDto(code, message);
+  static error(msg = '操作失败', code = HttpStatus.BAD_REQUEST): ResponseDto {
+    return new ResponseDto(code, msg);
   }
 }

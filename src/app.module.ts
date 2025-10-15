@@ -9,6 +9,7 @@ import { PermissionModule } from './permission/permission.module';
 import { RoleModule } from './role/role.module';
 import { RoleAuthGuard } from './common/auth/role-auth.guard';
 import { JwtAuthGuard } from './common/auth/jwt-auth.guard';
+import { FileModule } from './common/file/file.module';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const PORT = process.env.PORT || 9161;
@@ -51,6 +52,7 @@ console.info('配置文件：', `${envFilePath}\n`);
     AuthModule,
     PermissionModule,
     RoleModule,
+    FileModule,
   ],
   providers: [
     {

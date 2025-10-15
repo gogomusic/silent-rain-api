@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { FileBaseDto } from 'src/common/file/dto/file-base.dto';
 
 export class UserInfoDto {
   @ApiProperty({ description: 'id' })
@@ -24,6 +25,11 @@ export class UserInfoDto {
 
   @ApiProperty({ description: '头像' })
   avatar: number;
+
+  @ApiProperty({
+    description: '头像详情',
+  })
+  avatar_info: FileBaseDto;
 
   @ApiProperty({ description: '描述' })
   description: string;
