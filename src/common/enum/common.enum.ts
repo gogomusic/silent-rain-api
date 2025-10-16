@@ -11,3 +11,8 @@ export enum PermissionType {
   /** 菜单 */ MENU = 0,
   /** 按钮 */ BUTTON = 1,
 }
+
+export enum StatusEnum {
+  /** 停用 */ DISABLED = 0,
+  /** 启用 */ ENABLED = 1,
+}

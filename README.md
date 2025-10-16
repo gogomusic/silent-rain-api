@@ -48,12 +48,12 @@ When you're ready to deploy your NestJS application to production, there are som
 
 ## 开发进度
 
-- [x] 创建前台网站、后台管理系统和后端项目
-- [x] 部署到阿里云
+- [X] 创建前台网站、后台管理系统和后端项目
+- [X] 部署到阿里云
   - [X] 前台
   - [X] 后台
   - [X] 后端
-- [x] 用户注册
+- [X] 用户注册
   - [X] 注册
   - [X] 注册时密码加密
   - [X] 刷新页面后保留倒计时
@@ -66,4 +66,12 @@ When you're ready to deploy your NestJS application to production, there are som
   - [ ] 用户信息从token里拿，如果用户信息变了该怎么处理？
 - [ ] 退出登录
 - [ ] 忘记密码找回功能
+- [ ] 权限管控
 - [ ] 日志
+- [ ] 文件上传：
+  - [ ] 限制MIME类型、文件大小、文件后缀白名单
+  - [ ] 设置文件类型为私有还是公有
+  - [ ] 病毒扫描
+  - [ ] 重复上传进行秒传
+  - [ ] 下载时校验用户权限（通过元数据表）
+  - [ ] 多文件上传、断点续传方案

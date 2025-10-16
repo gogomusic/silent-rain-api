@@ -1,5 +1,5 @@
 import { BasicEntity } from 'src/common/entity/time.entity';
-import { UserType } from 'src/common/enum/common.enum';
+import { StatusEnum, UserType } from 'src/common/enum/common.enum';
 
 import { Column, Entity } from 'typeorm';
 
@@ -58,7 +58,7 @@ export class User extends BasicEntity {
     nullable: false,
     default: 1,
   })
-  status: number;
+  status: StatusEnum;
 
   @Column({ type: 'varchar', comment: '头像', default: '' })
   avatar: number;

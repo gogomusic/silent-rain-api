@@ -14,6 +14,7 @@ import { CurrentUserInfoDto } from './dto/current-user-info.dto';
 import { AllowNoPermission } from 'src/common/decorators/permission-decorator';
 import { UserListReqDto } from './dto/user-list.req.dto';
 import { UpdateSelfDto } from './dto/update-self.dto';
+import { ChangeStatusDto } from './dto/change-status.dto';
 
 @ApiTags('用户 /user')
 @Controller('user')
@@ -88,5 +89,14 @@ export class UserController {
   @AllowNoPermission()
   updateSelf(@Body() data: UpdateSelfDto) {
     return this.userService.updateSelf(data);
+  }
+
+  @ApiOperation({
+    summary: '修改用户状态',
+  })
+  @Post('changeStatus')
+  @ApiGenericResponse()
+  changeStatus(@Body() data: ChangeStatusDto) {
+    return this.userService.changeStatus(data);
   }
 }

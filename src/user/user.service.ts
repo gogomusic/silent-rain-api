@@ -10,10 +10,11 @@ import { compare, genSalt, hash } from 'bcryptjs';
 import { plainToInstance } from 'class-transformer';
 import { ResponseDto } from 'src/common/http/dto/response.dto';
 import { DataSource } from 'typeorm';
-import { UserType } from 'src/common/enum/common.enum';
+import { StatusEnum, UserType } from 'src/common/enum/common.enum';
 import { SysService } from 'src/sys/sys.service';
 import { UserListReqDto } from './dto/user-list.req.dto';
 import { UpdateSelfDto } from './dto/update-self.dto';
+import { ChangeStatusDto } from './dto/change-status.dto';
 
 @Injectable()
 export class UserService {
@@ -102,7 +103,7 @@ export class UserService {
     if (!checkPassword) {
       return ResponseDto.error('账号或密码错误', HttpStatus.EXPECTATION_FAILED);
     }
-    if (user.status === 0) {
+    if (user.status === StatusEnum.DISABLED) {
       return ResponseDto.error('此账号已被禁用', HttpStatus.FORBIDDEN);
     }
     return ResponseDto.success({
@@ -207,7 +208,7 @@ export class UserService {
 
   /** 获取用户列表(分页) */
   async getUserList(dto?: UserListReqDto) {
-    const { current = 1, pageSize = 10, username } = dto || {};
+    const { current = 1, pageSize = 10, username, status } = dto || {};
     const queryBuilder = this.userRepository
       .createQueryBuilder('u')
       .leftJoinAndSelect('file', 'f', 'u.avatar = f.id')
@@ -232,6 +233,11 @@ export class UserService {
     if (username) {
       queryBuilder.where('u.username LIKE :username', {
         username: `%${username}%`,
+      });
+    }
+    if (typeof status !== 'undefined') {
+      queryBuilder[username ? 'andWhere' : 'where']('u.status = :status', {
+        status,
       });
     }
 
@@ -290,6 +296,34 @@ export class UserService {
       salt: _salt,
       ...rest
     } = result as Partial<User & UpdateSelfDto>;
+    const redisKey = getRedisKey(RedisKeyPrefix.USER_INFO, rest.id);
+    await this.redisService.hSet(redisKey, rest);
+    return ResponseDto.success(null, '更新成功');
+  }
+
+  /** 修改用户状态 */
+  async changeStatus(changeStatusDto: ChangeStatusDto) {
+    const { id, status } = changeStatusDto;
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      return ResponseDto.error('用户不存在', HttpStatus.NOT_FOUND);
+    }
+    const updatedUser = plainToInstance(
+      User,
+      {
+        ...user,
+        status,
+      },
+      {
+        ignoreDecorators: true,
+      },
+    );
+    const result = await this.userRepository.save(updatedUser);
+    const {
+      password: _password,
+      salt: _salt,
+      ...rest
+    } = result as Partial<User>;
     const redisKey = getRedisKey(RedisKeyPrefix.USER_INFO, rest.id);
     await this.redisService.hSet(redisKey, rest);
     return ResponseDto.success(null, '更新成功');

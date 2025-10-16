@@ -6,6 +6,7 @@ import { TransformInterceptor } from './common/http/transform-interceptor';
 import { HttpExceptionFilter } from './common/http/http-exception.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { DateFormatInterceptor } from './common/interceptors/date-format.interceptor';
 
 const PORT = process.env.PORT || 9161;
 
@@ -23,6 +24,7 @@ async function bootstrap() {
   });
   await app
     .useGlobalFilters(new HttpExceptionFilter())
+    .useGlobalInterceptors(new DateFormatInterceptor())
     .useGlobalInterceptors(new TransformInterceptor())
     .useStaticAssets(join(process.cwd(), 'uploads'), {
       prefix: '/uploads',

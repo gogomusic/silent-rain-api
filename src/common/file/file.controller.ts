@@ -13,6 +13,7 @@ import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/user/entities/user.entity';
 import { ApiGenericResponse } from '../decorators/api-generic-response.decorator';
 import { FileBaseDto } from './dto/file-base.dto';
+import { AllowNoPermission } from '../decorators/permission-decorator';
 
 @ApiTags('文件 /file')
 @Controller('file')
@@ -42,6 +43,7 @@ export class FileController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   @ApiGenericResponse({ model: FileBaseDto })
+  @AllowNoPermission()
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Req() req: { user: User },
