@@ -4,10 +4,14 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
 import { ApiGenericResponse } from 'src/common/decorators/api-generic-response.decorator';
-import { AllowNoToken } from 'src/common/decorators/token-decorator';
-import { RsaDto } from './dto/rsa-dto';
+import { AllowNoToken } from 'src/common/decorators/token.decorator';
+import {
+  LogAction,
+  LogModule,
+} from 'src/common/decorators/operation.decorator';
 
 @ApiTags('系统 /sys')
+@LogModule('系统')
 @Controller('sys')
 export class SysController {
   constructor(
@@ -21,6 +25,7 @@ export class SysController {
     description: '通过邮箱获取注册验证码',
   })
   @Get('registerCode')
+  @LogAction('获取注册验证码')
   @AllowNoToken()
   registerCode(@Query('email') email: string) {
     return this.sysService.sendMailForRegister(email);
@@ -30,6 +35,7 @@ export class SysController {
   @ApiOperation({
     summary: '注册',
   })
+  @LogAction('注册')
   @Post('register')
   @ApiGenericResponse()
   @AllowNoToken()
@@ -42,9 +48,9 @@ export class SysController {
     summary: '公钥接口',
   })
   @Get('getPublicKey')
-  @ApiGenericResponse({ model: RsaDto })
+  @ApiGenericResponse({ model: String })
   @AllowNoToken()
-  getPublicKey(@Query('key_id') key_id?: string) {
-    return this.sysService.createRsaKeyPair(key_id);
+  getPublicKey() {
+    return this.sysService.getPublicKey();
   }
 }

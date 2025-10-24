@@ -1,14 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ListReqDto } from 'src/common/dto/list.req.dto';
+import { IsEnum, IsOptional } from 'class-validator';
+import { ListBaseDto } from 'src/common/dto/list-base.dto';
 import { StatusEnum } from 'src/common/enum/common.enum';
 
-export class UserListReqDto extends ListReqDto {
+export class UserListReqDto extends ListBaseDto {
   @ApiProperty({ description: '用户名' })
-  username: string;
+  @IsOptional()
+  username?: string;
 
   @ApiProperty({
     description: '用户状态 0停用 1启用',
     enum: StatusEnum,
   })
-  status: StatusEnum;
+  @IsOptional()
+  @IsEnum(StatusEnum)
+  status?: StatusEnum;
 }

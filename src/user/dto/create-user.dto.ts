@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty } from 'class-validator';
 import { LoginUserDto } from './login-user.dto';
 
 export class CreateUserDto extends LoginUserDto {
@@ -9,7 +9,6 @@ export class CreateUserDto extends LoginUserDto {
 
   @ApiProperty({ description: '邮箱' })
   @IsNotEmpty({ message: '邮箱不能为空' })
-  @IsString({ message: '邮箱必须是字符串' })
   @IsEmail()
   email: string;
 

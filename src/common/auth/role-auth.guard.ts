@@ -6,11 +6,11 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PermissionService } from 'src/permission/permission.service';
-import { ALLOW_NO_PERMISSION } from '../decorators/permission-decorator';
+import { ALLOW_NO_PERMISSION } from '../decorators/permission.decorator';
 import { Request } from 'express';
 import { pathToRegexp } from 'path-to-regexp';
 import { User } from 'src/user/entities/user.entity';
-import { ALLOW_NO_TOKEN } from '../decorators/token-decorator';
+import { ALLOW_NO_TOKEN } from '../decorators/token.decorator';
 import { UserType } from '../enum/common.enum';
 
 const forbidden = () => new ForbiddenException('无权访问');

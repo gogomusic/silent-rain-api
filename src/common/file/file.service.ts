@@ -11,6 +11,11 @@ export class FileService {
   ) {}
 
   async saveFileInfo(file: Partial<File>) {
-    return this.fileRepository.save(file);
+    const data = await this.fileRepository.save(file);
+    return {
+      file_id: data.id,
+      file_path: data.key,
+      file_original_name: data.original_name,
+    };
   }
 }

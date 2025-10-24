@@ -13,9 +13,8 @@ export class AuthService {
   async validateUser(
     username: string,
     password: string,
-    key_id: string,
   ): Promise<ResponseDto<User>> {
-    return this.userService.validateUser(username, password, key_id);
+    return this.userService.validateUser(username, password);
   }
 
   /** 生成Token */

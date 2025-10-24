@@ -54,10 +54,7 @@ export class UserService {
       );
     }
     const salt = await genSalt();
-    const pwd = this.sysService.decrypt(
-      createUserDto.key_id,
-      createUserDto.password,
-    );
+    const pwd = this.sysService.decrypt(createUserDto.password)!;
     const password = await hash(pwd, salt);
     const newUser = plainToInstance(
       User,
@@ -72,13 +69,10 @@ export class UserService {
     );
 
     const {
-      username: _username,
       password: _password,
       confirm: _confirm,
       captcha: _captcha,
       salt: _salt,
-      key_id: _keyId,
-      public_key: _publicKey,
       ...rest
     } = (await this.userRepository.save(newUser)) as Partial<
       User & CreateUserDto
@@ -89,8 +83,8 @@ export class UserService {
   }
 
   /** 验证用户 */
-  async validateUser(username: string, password: string, key_id: string) {
-    const encryptedPwd = this.sysService.decrypt(key_id, password);
+  async validateUser(username: string, password: string) {
+    const encryptedPwd = this.sysService.decrypt(password)!;
     const user = await this.userRepository.findOne({
       where: {
         username: username,
@@ -109,13 +103,14 @@ export class UserService {
     return ResponseDto.success({
       id: user.id,
       username: user.username,
+      nickname: user.nickname,
       email: user.email,
       user_type: user.user_type,
     });
   }
 
-  /** 查找用户信息 */
-  async findOne(
+  /** 查找用户信息(含角色和权限) */
+  async findUserAllInfo(
     _user: { id: number; user_type?: UserType },
     isGetPerm = false,
   ) {
@@ -201,14 +196,49 @@ export class UserService {
     return user;
   }
 
+  /** 查找用户基本信息(不含头像详情、角色、权限) */
+  async findUser({ id, username }: { id?: number; username?: string }) {
+    if (id) {
+      const redisKey = getRedisKey(RedisKeyPrefix.USER_INFO, id);
+      const cachedUser = (await this.redisService.hGetAll(
+        redisKey,
+      )) as unknown as User | null;
+      if (cachedUser) {
+        return cachedUser;
+      }
+    }
+
+    const queryBuilder = this.dataSource
+      .createQueryBuilder()
+      .select([
+        'u.id AS id',
+        'u.username AS username',
+        'u.nickname AS nickname',
+        'u.email AS email',
+        'u.user_type AS user_type',
+        'u.status AS status',
+        'u.avatar AS avatar',
+        'u.description AS description',
+        'u.create_time AS create_time',
+        'u.update_time AS update_time',
+      ])
+      .from('user', 'u');
+    if (id) queryBuilder.where('u.id = :id', { id });
+    else if (username)
+      queryBuilder.where('u.username = :username', { username });
+    else return null;
+    return await queryBuilder.getRawOne();
+  }
+
   logout(_user_id: number) {
     // TODO 登出
     return ResponseDto.success();
   }
 
   /** 获取用户列表(分页) */
-  async getUserList(dto?: UserListReqDto) {
-    const { current = 1, pageSize = 10, username, status } = dto || {};
+  async getUserList(dto: UserListReqDto) {
+    const { current, pageSize, username, status } = dto || {};
+
     const queryBuilder = this.userRepository
       .createQueryBuilder('u')
       .leftJoinAndSelect('file', 'f', 'u.avatar = f.id')
@@ -264,7 +294,6 @@ export class UserService {
         avatar_info,
       };
     });
-
     return ResponseDto.success({
       list,
       total,

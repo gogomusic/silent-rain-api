@@ -7,15 +7,16 @@ import {
   Req,
 } from '@nestjs/common';
 import { FileService } from './file.service';
-import { ResponseDto } from '../http/dto/response.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/user/entities/user.entity';
 import { ApiGenericResponse } from '../decorators/api-generic-response.decorator';
 import { FileBaseDto } from './dto/file-base.dto';
-import { AllowNoPermission } from '../decorators/permission-decorator';
+import { AllowNoPermission } from '../decorators/permission.decorator';
+import { LogAction, LogModule } from '../decorators/operation.decorator';
 
 @ApiTags('文件 /file')
+@LogModule('文件')
 @Controller('file')
 export class FileController {
   constructor(private readonly fileService: FileService) {}
@@ -40,6 +41,7 @@ export class FileController {
       },
     },
   })
+  @LogAction('上传')
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   @ApiGenericResponse({ model: FileBaseDto })
@@ -49,7 +51,7 @@ export class FileController {
     @Req() req: { user: User },
     @Body() body: { module: string },
   ) {
-    const data = await this.fileService.saveFileInfo({
+    return await this.fileService.saveFileInfo({
       uuid: file.filename.split('.')[0],
       module: body.module,
       original_name: file.originalname,
@@ -58,11 +60,6 @@ export class FileController {
       expired_time: undefined,
       username: req.user.username,
       key: '/' + file.path.replace(/\\/g, '/'),
-    });
-    return ResponseDto.success({
-      file_id: data.id,
-      file_path: data.key,
-      file_original_name: data.original_name,
     });
   }
 }

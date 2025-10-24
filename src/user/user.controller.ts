@@ -1,4 +1,10 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { Get, Query, Req } from '@nestjs/common/decorators';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiGenericResponse } from 'src/common/decorators/api-generic-response.decorator';
@@ -6,17 +12,22 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { User } from './entities/user.entity';
 import { AuthService } from 'src/common/auth/auth.service';
 import { UserService } from './user.service';
-import { UserInfoDto } from './dto/user-info.dto';
+import { UserInfoResDto } from './dto/response/user-info.res.dto';
 import { LocalAuthGuard } from 'src/common/auth/local-auth.guard';
-import { AllowNoToken } from 'src/common/decorators/token-decorator';
+import { AllowNoToken } from 'src/common/decorators/token.decorator';
 import { ResponseDto } from 'src/common/http/dto/response.dto';
-import { CurrentUserInfoDto } from './dto/current-user-info.dto';
-import { AllowNoPermission } from 'src/common/decorators/permission-decorator';
+import { CurrentUserInfoResDto } from './dto/response/current-user-info.res.dto';
+import { AllowNoPermission } from 'src/common/decorators/permission.decorator';
 import { UserListReqDto } from './dto/user-list.req.dto';
 import { UpdateSelfDto } from './dto/update-self.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
+import {
+  LogAction,
+  LogModule,
+} from 'src/common/decorators/operation.decorator';
 
 @ApiTags('用户 /user')
+@LogModule('用户管理')
 @Controller('user')
 export class UserController {
   constructor(
@@ -43,20 +54,20 @@ export class UserController {
   @ApiOperation({
     summary: '用户详情',
   })
-  @ApiGenericResponse({ model: UserInfoDto })
+  @ApiGenericResponse({ model: UserInfoResDto })
   @Get('info')
-  findOne(@Query('id') id: string) {
-    return this.userService.findOne({ id: +id });
+  findOne(@Query('id', ParseIntPipe) id: string) {
+    return this.userService.findUserAllInfo({ id: +id });
   }
 
   @ApiOperation({
     summary: '当前登陆用户详情',
   })
-  @ApiGenericResponse({ model: CurrentUserInfoDto })
+  @ApiGenericResponse({ model: CurrentUserInfoResDto })
   @Get('current')
   @AllowNoPermission()
   findCurrent(@Req() req: { user: User }) {
-    return this.userService.findOne(req.user, true);
+    return this.userService.findUserAllInfo(req.user, true);
   }
 
   @ApiOperation({
@@ -73,7 +84,7 @@ export class UserController {
     summary: '用户列表',
   })
   @ApiGenericResponse({
-    model: UserInfoDto,
+    model: UserInfoResDto,
     isList: true,
   })
   @Post('list')
@@ -84,6 +95,7 @@ export class UserController {
   @ApiOperation({
     summary: '修改个人资料',
   })
+  @LogAction('修改个人资料')
   @Post('updateSelf')
   @ApiGenericResponse()
   @AllowNoPermission()
@@ -94,6 +106,7 @@ export class UserController {
   @ApiOperation({
     summary: '修改用户状态',
   })
+  @LogAction('修改用户状态')
   @Post('changeStatus')
   @ApiGenericResponse()
   changeStatus(@Body() data: ChangeStatusDto) {

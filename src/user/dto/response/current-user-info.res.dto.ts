@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserInfoDto } from './user-info.dto';
+import { UserInfoResDto } from './user-info.res.dto';
 
-export class CurrentUserInfoDto extends UserInfoDto {
+export class CurrentUserInfoResDto extends UserInfoResDto {
   @ApiProperty({ description: '权限' })
   permissions: number[];
 }

@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { StatusEnum, UserType } from 'src/common/enum/common.enum';
 import { FileBaseDto } from 'src/common/file/dto/file-base.dto';
 
-export class UserInfoDto {
+export class UserInfoResDto {
   @ApiProperty({ description: 'id' })
   id: number;
 

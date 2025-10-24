@@ -1,19 +1,21 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { RedisService } from 'src/common/redis/redis.service';
 import { MailService } from 'src/common/mail/mail.service';
 import { getRedisKey } from 'src/utils/redis';
 import { RedisKeyPrefix } from 'src/common/enum/redis-key.enum';
 import { ResponseDto } from 'src/common/http/dto/response.dto';
 import NodeRSA from 'node-rsa';
-import { v4 as uuidV4 } from 'uuid';
-import { RsaDto } from './dto/rsa-dto';
 
 @Injectable()
 export class SysService {
   constructor(
     private readonly redisService: RedisService,
     private readonly mailService: MailService,
-    @Inject('KEYS_STORE') private readonly keys: Map<string, NodeRSA>,
+    @Inject('RSA_STORE')
+    private readonly rsa_store: {
+      key: NodeRSA | undefined;
+      public_key: string | undefined;
+    },
   ) {}
 
   /** 发送注册邮箱验证码 */
@@ -25,33 +27,15 @@ export class SysService {
   }
 
   /**
-   * 生成一对 RSA 密钥，并返回公钥和密钥标识
+   * 生成一对 RSA 密钥，并返回公钥
    */
-  createRsaKeyPair(key_id?: string) {
-    if (key_id && this.keys.has(key_id)) {
-      return ResponseDto.success<RsaDto>({
-        key_id,
-        public_key: this.keys.get(key_id)!.exportKey('public'),
-      });
-    }
-    const key = new NodeRSA({ b: 2048 });
-    key.setOptions({ encryptionScheme: 'pkcs1_oaep' });
-    const publicKey = key.exportKey('public');
-    const keyId = uuidV4();
-    this.keys.set(keyId, key);
-    return ResponseDto.success<RsaDto>({
-      key_id: keyId,
-      public_key: publicKey,
-    });
+  getPublicKey() {
+    return ResponseDto.success(this.rsa_store.public_key);
   }
 
   /** 解密 */
-  decrypt(keyId: string, encryptedData: string) {
-    const key = this.keys.get(keyId);
-    if (!key) {
-      throw new UnauthorizedException('无效的密钥标识');
-    }
-    const data = key.decrypt(encryptedData, 'utf8');
+  decrypt(encryptedData: string) {
+    const data = this.rsa_store.key?.decrypt(encryptedData, 'utf8');
     return data;
   }
 }

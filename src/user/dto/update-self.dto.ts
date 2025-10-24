@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsInt, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class UpdateSelfDto {
   @ApiProperty({ description: 'id' })
-  @IsNotEmpty()
+  @IsInt()
   id: number;
 
   @ApiProperty({ description: '用户名' })
@@ -19,8 +20,12 @@ export class UpdateSelfDto {
   email: string;
 
   @ApiProperty({ description: '头像', required: false })
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
   avatar?: number;
 
   @ApiProperty({ description: '描述', required: false })
+  @IsOptional()
   description?: string;
 }

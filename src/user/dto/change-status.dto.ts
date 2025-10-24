@@ -1,10 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty } from 'class-validator';
 import { StatusEnum } from 'src/common/enum/common.enum';
 
 export class ChangeStatusDto {
   @ApiProperty({ description: 'id' })
   @IsNotEmpty()
+  @IsInt()
   id: number;
 
   @ApiProperty({
@@ -12,6 +13,6 @@ export class ChangeStatusDto {
     enum: StatusEnum,
     enumName: 'UserStatusEnum',
   })
-  @IsNotEmpty()
+  @IsEnum(StatusEnum)
   status: StatusEnum;
 }

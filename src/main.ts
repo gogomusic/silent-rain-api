@@ -2,11 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { getServerIps } from './utils/os';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { TransformInterceptor } from './common/http/transform-interceptor';
-import { HttpExceptionFilter } from './common/http/http-exception.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-import { DateFormatInterceptor } from './common/interceptors/date-format.interceptor';
+import { Logger } from './common/logger/logger';
+import { ValidationPipe } from '@nestjs/common';
 
 const PORT = process.env.PORT || 9161;
 
@@ -22,10 +21,14 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, documentFactory, {
     jsonDocumentUrl: 'api-json',
   });
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
+  app.useLogger(app.get(Logger));
   await app
-    .useGlobalFilters(new HttpExceptionFilter())
-    .useGlobalInterceptors(new DateFormatInterceptor())
-    .useGlobalInterceptors(new TransformInterceptor())
     .useStaticAssets(join(process.cwd(), 'uploads'), {
       prefix: '/uploads',
     })

@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ALLOW_NO_TOKEN } from '../decorators/token-decorator';
+import { ALLOW_NO_TOKEN } from '../decorators/token.decorator';
 import { Reflector } from '@nestjs/core';
 
 @Injectable()
