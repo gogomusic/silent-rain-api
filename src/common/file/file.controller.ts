@@ -1,13 +1,5 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UseInterceptors,
-  UploadedFile,
-  Req,
-} from '@nestjs/common';
+import { Controller, Post, Body, Req, UploadedFiles } from '@nestjs/common';
 import { FileService } from './file.service';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/user/entities/user.entity';
 import { ApiGenericResponse } from '../decorators/api-generic-response.decorator';
@@ -43,14 +35,17 @@ export class FileController {
   })
   @LogAction('上传')
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
   @ApiGenericResponse({ model: FileBaseDto })
   @AllowNoPermission()
   async uploadFile(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Express.Multer.File[],
     @Req() req: { user: User },
     @Body() body: { module: string },
   ) {
+    if (!files || files.length === 0) {
+      throw new Error('未上传文件');
+    }
+    const file = files[0];
     return await this.fileService.saveFileInfo({
       uuid: file.filename.split('.')[0],
       module: body.module,

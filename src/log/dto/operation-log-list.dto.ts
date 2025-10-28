@@ -49,5 +49,10 @@ export class OperationLogListDto extends ListBaseDto {
   @ApiProperty({ description: '操作结果', enum: OperationResultEnum })
   @IsOptional()
   @IsEnum(OperationResultEnum)
+  @Type(() => Number)
   status?: OperationResultEnum;
+
+  @ApiProperty({ description: 'IP' })
+  @IsOptional()
+  ip?: string;
 }

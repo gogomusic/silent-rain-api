@@ -11,13 +11,14 @@ export class OperationLog {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'int', comment: '用户ID' })
+  @Column({ type: 'int', comment: '用户ID', nullable: true })
   user_id: number;
 
   @Column({
     type: 'varchar',
     length: 32,
     comment: '用户名',
+    nullable: true,
   })
   username: string;
 
@@ -25,6 +26,7 @@ export class OperationLog {
     type: 'varchar',
     length: 32,
     comment: '昵称',
+    nullable: true,
   })
   nickname: string;
 

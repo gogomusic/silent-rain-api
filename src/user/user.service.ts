@@ -15,6 +15,8 @@ import { SysService } from 'src/sys/sys.service';
 import { UserListReqDto } from './dto/user-list.req.dto';
 import { UpdateSelfDto } from './dto/update-self.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
+import { ChangeUserPwdDto } from './dto/change-user-pwd.dto';
+import { UserResetPwdDto } from './dto/user-reset-pwd.dto';
 
 @Injectable()
 export class UserService {
@@ -356,5 +358,78 @@ export class UserService {
     const redisKey = getRedisKey(RedisKeyPrefix.USER_INFO, rest.id);
     await this.redisService.hSet(redisKey, rest);
     return ResponseDto.success(null, '更新成功');
+  }
+
+  /** 用户修改密码 */
+  async changePwd(user: User, changePwdDto: ChangeUserPwdDto) {
+    const captchaRedisKey = getRedisKey(
+      RedisKeyPrefix.CHANGE_PWD_CODE,
+      user.email,
+    );
+    const captcha = await this.redisService.get(captchaRedisKey);
+    if (captcha !== changePwdDto.captcha) {
+      return ResponseDto.error('验证码错误', HttpStatus.EXPECTATION_FAILED);
+    }
+    const dbUser = await this.validateUser(
+      user.username,
+      changePwdDto.password,
+    );
+    if (!dbUser?.data?.id) {
+      return dbUser; // 返回错误响应
+    }
+
+    const salt = await genSalt();
+    const new_password = this.sysService.decrypt(changePwdDto.new_password)!;
+    const confirm = this.sysService.decrypt(changePwdDto.confirm)!;
+    if (new_password !== confirm) {
+      return ResponseDto.error(
+        '两次输入的密码不一致',
+        HttpStatus.EXPECTATION_FAILED,
+      );
+    }
+    const password = await hash(new_password, salt);
+    await this.userRepository.update(user.id, {
+      password,
+      salt,
+    });
+    return ResponseDto.success(null, '密码修改成功');
+  }
+
+  /** 用户忘记密码时，重置密码 */
+  async resetPwd(dto: UserResetPwdDto) {
+    const user = await this.userRepository.findOne({
+      where: {
+        username: dto.username,
+      },
+    });
+    if (!user) {
+      return ResponseDto.error('用户不存在', HttpStatus.NOT_FOUND);
+    }
+    const captchaRedisKey = getRedisKey(
+      RedisKeyPrefix.CHANGE_PWD_CODE,
+      dto.email,
+    );
+    const captcha = await this.redisService.get(captchaRedisKey);
+    if (captcha !== dto.captcha) {
+      return ResponseDto.error('验证码错误', HttpStatus.EXPECTATION_FAILED);
+    }
+    if (user?.status === StatusEnum.DISABLED) {
+      return ResponseDto.error('此账号已被禁用', HttpStatus.FORBIDDEN);
+    }
+    const salt = await genSalt();
+    const new_password = this.sysService.decrypt(dto.new_password)!;
+    const confirm = this.sysService.decrypt(dto.confirm)!;
+    if (new_password !== confirm) {
+      return ResponseDto.error(
+        '两次输入的密码不一致',
+        HttpStatus.EXPECTATION_FAILED,
+      );
+    }
+    const password = await hash(new_password, salt);
+    await this.userRepository.update(user.id, {
+      password,
+      salt,
+    });
+    return ResponseDto.success(null, '密码修改成功');
   }
 }

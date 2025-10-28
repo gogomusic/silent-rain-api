@@ -18,6 +18,7 @@ import { HttpExceptionFilter } from './common/http/http-exception.filter';
 import { LogModule } from './log/log.module';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerInterceptor } from './common/logger/logger.interceptor';
+import { FormDataInterceptor } from './common/file/form-data.interceptor';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const isDev = NODE_ENV === 'development';
@@ -75,6 +76,10 @@ console.info('配置文件：', `${envFilePath}\n`);
     {
       provide: APP_GUARD,
       useClass: RoleAuthGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: FormDataInterceptor,
     },
     {
       provide: APP_INTERCEPTOR,

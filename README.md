@@ -65,9 +65,9 @@ When you're ready to deploy your NestJS application to production, there are som
   - [ ] 过期时间：短 Token（15 min）+ 长 Refresh Token（7 d）
   - [ ] 用户信息从token里拿，如果用户信息变了该怎么处理？
 - [ ] 退出登录
-- [ ] 忘记密码找回功能
+- [X] 忘记密码找回功能
 - [ ] 权限管控
-- [ ] 日志
+- [X] 日志
 - [ ] TypeORM系统学习，及其迁移功能
 - [ ] 文件上传：
   - [ ] 限制MIME类型、文件大小、文件后缀白名单

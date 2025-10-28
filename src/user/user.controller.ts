@@ -25,9 +25,11 @@ import {
   LogAction,
   LogModule,
 } from 'src/common/decorators/operation.decorator';
+import { ChangeUserPwdDto } from './dto/change-user-pwd.dto';
+import { UserResetPwdDto } from './dto/user-reset-pwd.dto';
 
 @ApiTags('用户 /user')
-@LogModule('用户管理')
+@LogModule('用户')
 @Controller('user')
 export class UserController {
   constructor(
@@ -111,5 +113,28 @@ export class UserController {
   @ApiGenericResponse()
   changeStatus(@Body() data: ChangeStatusDto) {
     return this.userService.changeStatus(data);
+  }
+
+  @ApiOperation({
+    summary: '修改密码',
+  })
+  @LogAction('修改密码')
+  @Post('changePwd')
+  @ApiGenericResponse()
+  @AllowNoPermission()
+  changePwd(@Req() req: { user: User }, @Body() data: ChangeUserPwdDto) {
+    return this.userService.changePwd(req.user, data);
+  }
+
+  @ApiOperation({
+    summary: '重置密码',
+    description: '用户忘记密码时，通过用户名、邮箱、验证码重新设置密码',
+  })
+  @LogAction('重置密码')
+  @Post('resetPwd')
+  @ApiGenericResponse()
+  @AllowNoToken()
+  resetPwd(@Body() data: UserResetPwdDto) {
+    return this.userService.resetPwd(data);
   }
 }

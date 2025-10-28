@@ -37,7 +37,7 @@ export class LoggerInterceptor implements NestInterceptor {
     const request: Request & { user: User } = context
       .switchToHttp()
       .getRequest();
-    const { user, method, url, body, headers } = request;
+    const { user, method, url, body, headers, files } = request;
     const xff = (headers['x-forwarded-for'] as string) || '';
     const ip = normalizeIp(
       xff
@@ -57,7 +57,13 @@ export class LoggerInterceptor implements NestInterceptor {
     const device = deviceType
       ? `${deviceType} ${deviceVendor} ${deviceModel}`.trim()
       : DeviceType.desktop;
-    const params = JSON.stringify(body);
+    const params = JSON.stringify({
+      ...body,
+      password: body?.password ? '******' : undefined, // 移除密码
+      new_password: body?.new_password ? '******' : undefined, // 移除新密码
+      confirm: body?.confirm ? '******' : undefined, // 移除确认密码
+      files: Array.isArray(files) && files.length > 0 ? files : undefined,
+    });
     let logEntry: OperationLog | undefined = undefined;
     const isRecordLog = Boolean(module && action);
     if (isRecordLog) {
@@ -147,7 +153,7 @@ export class LoggerInterceptor implements NestInterceptor {
         }
       }),
       catchError(async (error) => {
-        const errorMessage = error.response.message || error.message;
+        const errorMessage = error.response?.message || error.message;
         if (isRecordLog && logEntry?.id) {
           await this.logService.updateOperationLog(logEntry.id, {
             status: OperationResultEnum.FAIL,

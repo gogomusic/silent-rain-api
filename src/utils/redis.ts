@@ -10,5 +10,5 @@ export const getRedisKey = (
   moduleKey: RedisKeyPrefix,
   id?: string | number,
 ) => {
-  return `${moduleKey}${id ? '_' + id : ''}`;
+  return `${moduleKey}${id ?? ''}`;
 };

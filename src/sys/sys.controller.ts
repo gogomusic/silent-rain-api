@@ -31,6 +31,18 @@ export class SysController {
     return this.sysService.sendMailForRegister(email);
   }
 
+  /** 获取修改密码验证码 */
+  @ApiOperation({
+    summary: '获取修改密码验证码',
+    description: '通过邮箱获取修改密码验证码',
+  })
+  @Get('changePwdCode')
+  @LogAction('获取修改密码验证码')
+  @AllowNoToken()
+  changePwdCode(@Query('email') email: string) {
+    return this.sysService.sendMailForChangePwd(email);
+  }
+
   /** 注册 */
   @ApiOperation({
     summary: '注册',

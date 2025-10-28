@@ -101,9 +101,13 @@ export class LogService {
       }
     }
 
-    if (dto.status) {
-      const status = Number(dto.status);
-      qb.andWhere('status = :status', { status });
+    if ('status' in dto && dto.status !== undefined) {
+      qb.andWhere('status = :status', { status: dto.status });
+    }
+
+    if (dto.ip) {
+      const ip = `%${dto.ip}%`;
+      qb.andWhere('log.ip LIKE :ip', { ip });
     }
 
     if (dto.start_date && dto.end_date) {

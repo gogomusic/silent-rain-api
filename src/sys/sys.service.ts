@@ -26,6 +26,14 @@ export class SysService {
     return ResponseDto.success();
   }
 
+  /** 发送修改密码邮箱验证码 */
+  async sendMailForChangePwd(email: string) {
+    const { code } = await this.mailService.sendRegisterCode(email);
+    const redisKey = getRedisKey(RedisKeyPrefix.CHANGE_PWD_CODE, email);
+    await this.redisService.set(redisKey, code, 5 * 60); // 设置验证码有效期为5分钟
+    return ResponseDto.success();
+  }
+
   /**
    * 生成一对 RSA 密钥，并返回公钥
    */
@@ -35,7 +43,11 @@ export class SysService {
 
   /** 解密 */
   decrypt(encryptedData: string) {
-    const data = this.rsa_store.key?.decrypt(encryptedData, 'utf8');
-    return data;
+    try {
+      const data = this.rsa_store.key?.decrypt(encryptedData, 'utf8');
+      return data;
+    } catch (_error) {
+      throw new Error('解密失败');
+    }
   }
 }
