@@ -53,7 +53,6 @@ export class OperationLog {
 
   @Column({
     type: 'varchar',
-    length: 50,
     comment: '请求接口',
   })
   url: string;

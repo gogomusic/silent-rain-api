@@ -3,6 +3,10 @@ import { IsEmail, IsNotEmpty } from 'class-validator';
 import { LoginUserDto } from './login-user.dto';
 
 export class CreateUserDto extends LoginUserDto {
+  @ApiProperty({ description: '昵称' })
+  @IsNotEmpty({ message: '昵称不能为空' })
+  nickname: string;
+
   @ApiProperty({ description: '确认密码' })
   @IsNotEmpty({ message: '确认密码不能为空' })
   confirm: string;
