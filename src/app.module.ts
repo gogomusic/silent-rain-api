@@ -5,7 +5,6 @@ import { UserModule } from './user/user.module';
 import Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './common/auth/auth.module';
-import { PermissionModule } from './permission/permission.module';
 import { RoleModule } from './role/role.module';
 import { RoleAuthGuard } from './common/auth/role-auth.guard';
 import { JwtAuthGuard } from './common/auth/jwt-auth.guard';
@@ -19,6 +18,7 @@ import { LogModule } from './log/log.module';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerInterceptor } from './common/logger/logger.interceptor';
 import { FormDataInterceptor } from './common/file/form-data.interceptor';
+import { MenuModule } from './menu/menu.module';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const isDev = NODE_ENV === 'development';
@@ -62,11 +62,11 @@ console.info('配置文件：', `${envFilePath}\n`);
     SysModule,
     UserModule,
     AuthModule,
-    PermissionModule,
     RoleModule,
     FileModule,
     LoggerModule,
     LogModule,
+    MenuModule,
   ],
   providers: [
     {
@@ -83,15 +83,15 @@ console.info('配置文件：', `${envFilePath}\n`);
     },
     {
       provide: APP_INTERCEPTOR,
-      useClass: DateFormatInterceptor,
-    },
-    {
-      provide: APP_INTERCEPTOR,
       useClass: LoggerInterceptor,
     },
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: DateFormatInterceptor,
     },
     {
       provide: APP_FILTER,

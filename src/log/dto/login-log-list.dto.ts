@@ -4,16 +4,17 @@ import { IsDate, IsInt, IsOptional, Min } from 'class-validator';
 import { ListBaseDto } from 'src/common/dto/list-base.dto';
 
 export class LoginLogListDto extends ListBaseDto {
-  @ApiProperty({ description: '用户名' })
+  @ApiProperty({ description: '用户名', required: false })
   @IsOptional()
   username?: string;
 
-  @ApiProperty({ description: '昵称' })
+  @ApiProperty({ description: '昵称', required: false })
   @IsOptional()
   nickname?: string;
 
   @ApiProperty({
     description: '年份',
+    required: false,
   })
   @IsOptional()
   @IsInt()
@@ -23,6 +24,7 @@ export class LoginLogListDto extends ListBaseDto {
 
   @ApiProperty({
     description: '开始日期',
+    required: false,
   })
   @IsOptional()
   @IsDate()
@@ -31,6 +33,7 @@ export class LoginLogListDto extends ListBaseDto {
 
   @ApiProperty({
     description: '结束日期',
+    required: false,
   })
   @IsOptional()
   @IsDate()

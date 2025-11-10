@@ -13,12 +13,26 @@ export class ResponseDto<T = any> implements ResponseInterface<T> {
     description: '响应状态码',
   })
   readonly code: HttpStatus;
-  @ApiProperty({ description: '响应数据', required: false })
+  @ApiProperty({
+    description: '响应数据',
+    required: false,
+    // oneOf: [{ type: 'object' }, { type: 'string' }],
+  })
   readonly data?: T;
-  @ApiProperty({ description: '响应消息' })
+  @ApiProperty({
+    description: '响应消息',
+    oneOf: [
+      { type: 'string' },
+      {
+        type: 'array',
+        items: { type: 'string' },
+      },
+    ],
+  })
   readonly msg: string | string[];
   @ApiProperty({ description: '请求是否成功' })
   readonly success: boolean;
+  public _isResponseDto?: boolean = true;
 
   constructor(code: number, msg: string | string[], data?: T) {
     this.code = code;

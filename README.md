@@ -66,7 +66,7 @@ When you're ready to deploy your NestJS application to production, there are som
   - [ ] 用户信息从token里拿，如果用户信息变了该怎么处理？
 - [ ] 退出登录
 - [X] 忘记密码找回功能
-- [ ] 权限管控
+- [X] 权限管控
 - [X] 日志
 - [ ] TypeORM系统学习，及其迁移功能
 - [ ] 文件上传：
@@ -76,3 +76,23 @@ When you're ready to deploy your NestJS application to production, there are som
   - [ ] 重复上传进行秒传
   - [ ] 下载时校验用户权限（通过元数据表）
   - [ ] 多文件上传、断点续传方案
+
+## 常见BUG处理
+
+### Error: A circular dependency has been detected (property key: "0"). Please, make sure that each side of a bidirectional relationships are using lazy resolvers ("type: () => ClassType").
+
+在dto定义中，如果使用了枚举类型，则需要配置 `ApiProperty`装饰器，示例如下：
+
+```
+ts
+  @ApiProperty({
+    description: '状态：1:启用，0:禁用',
+    default: 1,
+    enum: StatusEnum,
+    enumName: 'RoleStatusEnum',
+  })
+  @IsOptional()
+  @IsEnum(StatusEnum)
+  @Type(() => Number)
+  status?: StatusEnum;
+```

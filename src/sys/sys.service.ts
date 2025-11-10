@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { RedisService } from 'src/common/redis/redis.service';
 import { MailService } from 'src/common/mail/mail.service';
-import { getRedisKey } from 'src/utils/redis';
+import { getRedisKey } from 'src/common/utils/redis';
 import { RedisKeyPrefix } from 'src/common/enum/redis-key.enum';
 import { ResponseDto } from 'src/common/http/dto/response.dto';
 import NodeRSA from 'node-rsa';

@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { PermissionService } from 'src/permission/permission.service';
+import { MenuService } from 'src/menu/menu.service';
 import { ALLOW_NO_PERMISSION } from '../decorators/permission.decorator';
 import { Request } from 'express';
 import { pathToRegexp } from 'path-to-regexp';
@@ -19,7 +19,7 @@ const forbidden = () => new ForbiddenException('无权访问');
 export class RoleAuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    private readonly permissionService: PermissionService,
+    private readonly menuService: MenuService,
   ) {}
 
   async canActivate(context: ExecutionContext) {
@@ -43,11 +43,11 @@ export class RoleAuthGuard implements CanActivate {
     if (req.user.user_type === UserType.ADMIN_USER) return true;
 
     // 获取该用户所拥有的所有接口权限
-    const userApis = await this.permissionService.findUserApis(req.user.id);
+    const userApis = await this.menuService.findUserApis(req.user.id);
     const index = userApis.findIndex((perm) => {
-      const [a, b] = perm.split(':');
+      const [_prefix, controller, action] = perm.split(':'); // 示例：sys:user:list
       const reqUrl = req.url.split('?')[0];
-      return !!pathToRegexp(`/${a}/${b}`).regexp.exec(reqUrl);
+      return !!pathToRegexp(`/${controller}/${action}`).regexp.exec(reqUrl);
     });
     if (index === -1) throw forbidden();
     return true;

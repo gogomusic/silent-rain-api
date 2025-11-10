@@ -44,6 +44,8 @@ Response: ${ResponseString}
 ################################################################################
         `;
     this.logger.error(logFormat, 'HttpException filter');
-    response.status(status).json(ResponseDto.error(message, status));
+    const result = ResponseDto.error(message, status);
+    delete result._isResponseDto;
+    response.status(status).json(result);
   }
 }

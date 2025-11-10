@@ -5,16 +5,17 @@ import { ListBaseDto } from 'src/common/dto/list-base.dto';
 import { OperationResultEnum } from 'src/common/enum/common.enum';
 
 export class OperationLogListDto extends ListBaseDto {
-  @ApiProperty({ description: '用户名' })
+  @ApiProperty({ description: '用户名', required: false })
   @IsOptional()
   username?: string;
 
-  @ApiProperty({ description: '昵称' })
+  @ApiProperty({ description: '昵称', required: false })
   @IsOptional()
   nickname?: string;
 
   @ApiProperty({
     description: '年份',
+    required: false,
   })
   @IsOptional()
   @IsInt()
@@ -24,6 +25,7 @@ export class OperationLogListDto extends ListBaseDto {
 
   @ApiProperty({
     description: '开始日期',
+    required: false,
   })
   @IsOptional()
   @IsDate()
@@ -32,27 +34,32 @@ export class OperationLogListDto extends ListBaseDto {
 
   @ApiProperty({
     description: '结束日期',
+    required: false,
   })
   @IsOptional()
   @IsDate()
   @Type(() => Date)
   end_date?: Date;
 
-  @ApiProperty({ description: '模块' })
+  @ApiProperty({ description: '模块', required: false })
   @IsOptional()
   module?: string;
 
-  @ApiProperty({ description: '操作' })
+  @ApiProperty({ description: '操作', required: false })
   @IsOptional()
   action?: string;
 
-  @ApiProperty({ description: '操作结果', enum: OperationResultEnum })
+  @ApiProperty({
+    description: '操作结果',
+    enum: OperationResultEnum,
+    required: false,
+  })
   @IsOptional()
   @IsEnum(OperationResultEnum)
   @Type(() => Number)
   status?: OperationResultEnum;
 
-  @ApiProperty({ description: 'IP' })
+  @ApiProperty({ description: 'IP', required: false })
   @IsOptional()
   ip?: string;
 }

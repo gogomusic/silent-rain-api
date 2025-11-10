@@ -1,11 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { getServerIps } from './utils/os';
+import { getServerIps } from './common/utils/os';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { Logger } from './common/logger/logger';
 import { ValidationPipe } from '@nestjs/common';
+import { ResponseDto } from './common/http/dto/response.dto';
 
 const PORT = process.env.PORT || 9161;
 
@@ -15,9 +16,13 @@ async function bootstrap() {
     .setTitle('「静夜聆雨」API文档')
     .setDescription('这是网站「静夜聆雨」的API文档')
     .setVersion('1.0')
+    .addBearerAuth()
+    .addSecurityRequirements('bearer')
     .build();
   const documentFactory = () =>
-    SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.createDocument(app, swaggerConfig, {
+      extraModels: [ResponseDto],
+    });
   SwaggerModule.setup('api', app, documentFactory, {
     jsonDocumentUrl: 'api-json',
   });

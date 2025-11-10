@@ -4,10 +4,8 @@ import { OperationLogListDto } from './dto/operation-log-list.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LoginLog } from './entities/login-log.entity';
 import { Repository } from 'typeorm';
-import { LoginLogResDto } from './dto/response/login-log.res.dto';
 import dayjs from 'dayjs';
 import { OperationLog } from './entities/operation-log.entity';
-import { OperationLogResDto } from './dto/response/operation-log.res.dto';
 
 @Injectable()
 export class LogService {
@@ -19,17 +17,17 @@ export class LogService {
   ) {}
 
   /** 创建登录日志 */
-  createLoginLog(dto: LoginLogResDto) {
+  createLoginLog(dto: LoginLog) {
     return this.loginLogRepository.save(dto);
   }
 
   /** 创建操作日志 */
-  createOperationLog(dto: OperationLogResDto) {
+  createOperationLog(dto: OperationLog) {
     return this.operationLogRepository.save(dto);
   }
 
   /** 更新操作日志 */
-  updateOperationLog(id: number, dto: Partial<OperationLogResDto>) {
+  updateOperationLog(id: number, dto: Partial<OperationLog>) {
     return this.operationLogRepository.update(id, dto);
   }
 
@@ -50,11 +48,11 @@ export class LogService {
     if (dto.year) {
       const year = Number(dto.year);
       if (!Number.isNaN(year)) {
-        qb.andWhere('YEAR(log.create_time) = :year', { year });
+        qb.andWhere('YEAR(log.created_at) = :year', { year });
       }
     }
     if (dto.start_date && dto.end_date) {
-      qb.andWhere('log.create_time BETWEEN :start AND :end', {
+      qb.andWhere('log.created_at BETWEEN :start AND :end', {
         start: dayjs(dto.start_date).startOf('day').toDate(),
         end: dayjs(dto.end_date).endOf('day').toDate(),
       });
@@ -63,7 +61,7 @@ export class LogService {
     const { current, pageSize } = dto;
     qb.skip((current - 1) * pageSize)
       .take(pageSize)
-      .orderBy('log.create_time', 'DESC');
+      .orderBy('log.created_at', 'DESC');
 
     return qb
       .getManyAndCount()
@@ -97,7 +95,7 @@ export class LogService {
     if (dto.year) {
       const year = Number(dto.year);
       if (!Number.isNaN(year)) {
-        qb.andWhere('YEAR(log.create_time) = :year', { year });
+        qb.andWhere('YEAR(log.created_at) = :year', { year });
       }
     }
 
@@ -111,7 +109,7 @@ export class LogService {
     }
 
     if (dto.start_date && dto.end_date) {
-      qb.andWhere('log.create_time BETWEEN :start AND :end', {
+      qb.andWhere('log.created_at BETWEEN :start AND :end', {
         start: dayjs(dto.start_date).startOf('day').toDate(),
         end: dayjs(dto.end_date).endOf('day').toDate(),
       });
@@ -120,7 +118,7 @@ export class LogService {
     const { current, pageSize } = dto;
     qb.skip((current - 1) * pageSize)
       .take(pageSize)
-      .orderBy('log.create_time', 'DESC');
+      .orderBy('log.created_at', 'DESC');
 
     return qb
       .getManyAndCount()

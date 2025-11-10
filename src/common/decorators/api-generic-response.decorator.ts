@@ -1,6 +1,6 @@
 import { ApiExtraModels, ApiOkResponse, getSchemaPath } from '@nestjs/swagger';
 import { ResponseDto } from 'src/common/http/dto/response.dto';
-import { applyDecorators, Type } from '@nestjs/common';
+import { applyDecorators, HttpStatus, Type } from '@nestjs/common';
 
 type TModelType =
   | Type<any>
@@ -23,37 +23,60 @@ export function ApiGenericResponse<TModel extends TModelType>(params?: {
   description?: string;
   model?: TModel;
   isList?: boolean;
+  isArray?: boolean;
 }) {
-  const { description = '成功', model, isList = false } = params || {};
+  const {
+    description = '成功',
+    model,
+    isList = false,
+    isArray = false,
+  } = params || {};
   if (model) {
     let dataSchema;
+    if (isArray) {
+      let items = {};
+      if (['String', 'Number', 'Boolean'].includes(model.name)) {
+        items = {
+          type: model.name.toLowerCase() as 'string' | 'number' | 'boolean',
+        };
+      } else {
+        items = {
+          $ref: getSchemaPath(model),
+        };
+      }
+      dataSchema = {
+        type: 'array' as const,
+        items,
+      };
+    }
     // 针对原始类型处理
-    if (model === String) {
-      dataSchema = { type: 'string' };
+    else if (model === String) {
+      dataSchema = { type: 'string' as const };
     } else if (model === Number) {
-      dataSchema = { type: 'number' };
+      dataSchema = { type: 'number' as const };
     } else if (model === Boolean) {
-      dataSchema = { type: 'boolean' };
+      dataSchema = { type: 'boolean' as const };
     } else {
       dataSchema = isList
         ? {
-            type: 'object',
+            type: 'object' as const,
             properties: {
               list: { type: 'array', items: { $ref: getSchemaPath(model) } },
-              current: { type: 'number', example: 1 },
-              pageSize: { type: 'number', example: 10 },
               total: { type: 'number', example: 100 },
             },
           }
         : { $ref: getSchemaPath(model) };
     }
     return applyDecorators(
-      ApiExtraModels(ResponseDto, model),
+      ApiExtraModels(model),
       ApiOkResponse({
         description,
         schema: {
+          title: `ResponseOf${model.name}${isArray ? 'Array' : ''}`,
           allOf: [
-            { $ref: getSchemaPath(ResponseDto) },
+            {
+              $ref: getSchemaPath(ResponseDto),
+            },
             {
               properties: {
                 data: dataSchema,
@@ -66,6 +89,23 @@ export function ApiGenericResponse<TModel extends TModelType>(params?: {
   }
   return ApiOkResponse({
     description,
-    type: ResponseDto,
+    example: {
+      code: HttpStatus.OK,
+      success: true,
+      msg: '成功',
+      data: null,
+    },
+    schema: {
+      allOf: [
+        {
+          $ref: getSchemaPath(ResponseDto),
+        },
+        {
+          properties: {
+            data: { nullable: true },
+          },
+        },
+      ],
+    },
   });
 }

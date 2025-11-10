@@ -22,3 +22,11 @@ export function normalizeIp(addr?: string): string | undefined {
 
   return ip;
 }
+
+/** 列表结果封装 */
+export class ListResult<T> {
+  constructor(
+    public list: T[] = [],
+    public total = 0,
+  ) {}
+}

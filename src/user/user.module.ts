@@ -6,12 +6,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { SysModule } from 'src/sys/sys.module';
+import { UserRole } from './entities/user-role.entity';
+import { MenuModule } from 'src/menu/menu.module';
 
 @Module({
   imports: [
     RedisModule,
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, UserRole]),
     forwardRef(() => SysModule),
+    MenuModule,
   ],
   controllers: [UserController],
   providers: [UserService, JwtService],

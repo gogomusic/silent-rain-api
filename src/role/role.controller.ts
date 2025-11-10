@@ -1,34 +1,98 @@
-import { Controller, Get, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Post,
+  Body,
+  Query,
+  Patch,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  Get,
+} from '@nestjs/common';
 import { RoleService } from './role.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CreateRoleDto } from './dto/create-role.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
+import {
+  LogAction,
+  LogModule,
+} from 'src/common/decorators/operation.decorator';
+import { ApiGenericResponse } from 'src/common/decorators/api-generic-response.decorator';
+import { Role } from './entities/role.entity';
+import { RoleListDto } from './dto/role-list.dto';
+import { AllRolesVo } from './dto/all-roles.vo';
 
 @ApiTags('角色 /role')
+@LogModule('角色')
 @Controller('role')
+@UseInterceptors(ClassSerializerInterceptor)
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
-  // @Post()
-  // create(@Body() createRoleDto: CreateRoleDto) {
-  //   return this.roleService.create(createRoleDto);
-  // }
-
-  @Get()
-  findAll() {
-    return this.roleService.findAll();
+  @ApiOperation({
+    summary: '创建角色',
+  })
+  @LogAction('创建角色')
+  @Post('create')
+  @ApiGenericResponse()
+  create(@Body() createRoleDto: CreateRoleDto) {
+    return this.roleService.create(createRoleDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.roleService.findOne(+id);
+  @ApiOperation({
+    summary: '角色列表',
+  })
+  @ApiGenericResponse({
+    model: Role,
+    isList: true,
+  })
+  @Post('list')
+  list(@Body() dto: RoleListDto) {
+    return this.roleService.list(dto);
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-  //   return this.roleService.update(+id, updateRoleDto);
-  // }
+  @ApiOperation({
+    summary: '角色下拉列表',
+    description: '不分页，返回所有角色',
+  })
+  @ApiGenericResponse({
+    model: AllRolesVo,
+    isList: true,
+  })
+  @Get('all')
+  all() {
+    return this.roleService.all();
+  }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.roleService.remove(+id);
+  @ApiOperation({
+    summary: '编辑角色',
+  })
+  @LogAction('编辑角色')
+  @Patch('update')
+  @ApiGenericResponse()
+  update(@Body() updateRoleDto: UpdateRoleDto) {
+    return this.roleService.update(updateRoleDto);
+  }
+
+  @ApiOperation({
+    summary: '删除角色',
+  })
+  @LogAction('删除角色')
+  @ApiGenericResponse()
+  @Delete('delete')
+  delete(@Query('id') id: number) {
+    return this.roleService.delete(+id);
+  }
+
+  @ApiOperation({
+    summary: '获取角色关联的菜单ID列表',
+  })
+  @ApiGenericResponse({
+    model: Number,
+    isArray: true,
+  })
+  @Get('menus')
+  menus(@Query('id') id: number) {
+    return this.roleService.menus(+id);
   }
 }

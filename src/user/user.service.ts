@@ -3,7 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { getRedisKey } from 'src/utils/redis';
+import { getRedisKey } from 'src/common/utils/redis';
 import { RedisKeyPrefix } from 'src/common/enum/redis-key.enum';
 import { RedisService } from 'src/common/redis/redis.service';
 import { compare, genSalt, hash } from 'bcryptjs';
@@ -12,17 +12,22 @@ import { ResponseDto } from 'src/common/http/dto/response.dto';
 import { DataSource } from 'typeorm';
 import { StatusEnum, UserType } from 'src/common/enum/common.enum';
 import { SysService } from 'src/sys/sys.service';
-import { UserListReqDto } from './dto/user-list.req.dto';
+import { UserListDto } from './dto/user-list.dto';
 import { UpdateSelfDto } from './dto/update-self.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { ChangeUserPwdDto } from './dto/change-user-pwd.dto';
 import { UserResetPwdDto } from './dto/user-reset-pwd.dto';
+import { ListResult } from 'src/common/utils';
+import { SetRolesDto } from './dto/set-roles.dto.td';
+import { UserRole } from './entities/user-role.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(UserRole)
+    private readonly userRoleRepository: Repository<UserRole>,
     private readonly dataSource: DataSource,
     private readonly redisService: RedisService,
     private readonly sysService: SysService,
@@ -128,24 +133,24 @@ export class UserService {
         'u.status AS status',
         'u.avatar AS avatar',
         'u.description AS description',
-        'u.create_time AS create_time',
-        'u.update_time AS update_time',
+        'u.created_at AS created_at',
+        'u.updated_at AS updated_at',
         'ur.role_id AS role_id',
-        'p.code AS permission_code',
+        'm.permission AS permission',
         'f.id AS avatar_file_id',
         'f.key AS avatar_file_path',
         'f.original_name AS avatar_file_original_name',
       ])
       .from('user', 'u')
       .leftJoin('user_role', 'ur', 'u.id = ur.user_id')
-      .leftJoin('role_permission', 'rp', 'ur.role_id=rp.role_id')
-      .leftJoin('permission', 'p', 'rp.permission_id = p.id')
+      .leftJoin('role_menu', 'rm', 'ur.role_id=rm.role_id')
+      .leftJoin('menu', 'm', 'rm.menu_id = m.id')
       .leftJoin('file', 'f', 'u.avatar = f.id')
       .where('u.id = :id', { id });
 
     const enrichedData: (User & {
       role_id?: number;
-      permission_code?: string;
+      permission?: string;
       avatar_file_id?: number;
       avatar_file_path?: string;
       avatar_file_original_name?: string;
@@ -164,16 +169,16 @@ export class UserService {
     let permissions: string[] = [];
     if (isGetPerm) {
       if (user_type === UserType.ADMIN_USER) {
-        const allPerms: { code: string }[] = await this.dataSource
+        const allPerms: { permission: string }[] = await this.dataSource
           .createQueryBuilder()
-          .select(['p.code AS code'])
-          .from('permission', 'p')
+          .select(['m.permission AS permission'])
+          .from('menu', 'm')
           .getRawMany();
-        permissions = allPerms.map((item) => item.code);
+        permissions = allPerms.map((item) => item.permission);
       } else
         permissions = enrichedData.reduce((acc, row) => {
-          if (row.permission_code && !acc.includes(row.permission_code)) {
-            acc.push(row.permission_code);
+          if (row.permission && !acc.includes(row.permission)) {
+            acc.push(row.permission);
           }
           return acc;
         }, [] as string[]);
@@ -182,7 +187,7 @@ export class UserService {
     const user = {
       ...enrichedData[0],
       roles,
-      permissions: isGetPerm ? permissions : undefined,
+      permissions: isGetPerm ? permissions.filter(Boolean) : undefined,
       avatar_info: {
         file_id: enrichedData[0].avatar_file_id,
         file_path: enrichedData[0].avatar_file_path,
@@ -190,7 +195,7 @@ export class UserService {
       },
     };
     delete user.role_id;
-    delete user.permission_code;
+    delete user.permission;
     delete user.avatar_file_id;
     delete user.avatar_file_path;
     delete user.avatar_file_original_name;
@@ -221,8 +226,8 @@ export class UserService {
         'u.status AS status',
         'u.avatar AS avatar',
         'u.description AS description',
-        'u.create_time AS create_time',
-        'u.update_time AS update_time',
+        'u.created_at AS created_at',
+        'u.updated_at AS updated_at',
       ])
       .from('user', 'u');
     if (id) queryBuilder.where('u.id = :id', { id });
@@ -238,12 +243,12 @@ export class UserService {
   }
 
   /** 获取用户列表(分页) */
-  async getUserList(dto: UserListReqDto) {
+  async getUserList(dto: UserListDto) {
     const { current, pageSize, username, status } = dto || {};
 
     const queryBuilder = this.userRepository
       .createQueryBuilder('u')
-      .leftJoinAndSelect('file', 'f', 'u.avatar = f.id')
+      .leftJoin('file', 'f', 'u.avatar = f.id')
       .select([
         'u.id AS id',
         'u.username AS username',
@@ -252,13 +257,13 @@ export class UserService {
         'u.status AS status',
         'u.avatar AS avatar',
         'u.description AS description',
-        'u.create_time AS create_time',
-        'u.update_time AS update_time',
+        'u.created_at AS created_at',
+        'u.updated_at AS updated_at',
         'f.id AS avatar_file_id',
         'f.key AS avatar_file_path',
         'f.original_name AS avatar_file_original_name',
       ])
-      .orderBy('u.update_time', 'DESC')
+      .orderBy('u.updated_at', 'DESC')
       .skip((current - 1) * pageSize)
       .take(pageSize);
 
@@ -279,6 +284,19 @@ export class UserService {
       avatar_file_original_name?: string;
     })[] = await queryBuilder.getRawMany();
     const total = await queryBuilder.getCount();
+    const userIds = users.map((user) => user.id);
+    const userRoles = await this.userRoleRepository
+      .createQueryBuilder('ur')
+      .where('ur.user_id IN (:...userIds)', { userIds })
+      .getMany();
+    const roleMap = new Map<number, number[]>();
+    userRoles.forEach((row) => {
+      if (roleMap.has(row.user_id)) {
+        roleMap.get(row.user_id)!.push(row.role_id);
+      } else {
+        roleMap.set(row.user_id, [row.role_id]);
+      }
+    });
     const list = users.map((user) => {
       const {
         avatar_file_id,
@@ -294,14 +312,10 @@ export class UserService {
       return {
         ...rest,
         avatar_info,
+        roles: roleMap.get(user.id) || [],
       };
     });
-    return ResponseDto.success({
-      list,
-      total,
-      current,
-      pageSize,
-    });
+    return new ListResult(list, total);
   }
 
   /** 更新个人资料 */
@@ -353,6 +367,8 @@ export class UserService {
     const {
       password: _password,
       salt: _salt,
+      roles: _roles,
+      avatar_info: _avatar_info,
       ...rest
     } = result as Partial<User>;
     const redisKey = getRedisKey(RedisKeyPrefix.USER_INFO, rest.id);
@@ -431,5 +447,30 @@ export class UserService {
       salt,
     });
     return ResponseDto.success(null, '密码修改成功');
+  }
+
+  async setRoles(dto: SetRolesDto) {
+    const { id, roles } = dto;
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      return ResponseDto.error('用户不存在', HttpStatus.NOT_FOUND);
+    }
+    await this.userRoleRepository.delete({ user_id: id });
+    const userRoles = roles.map((role_id) =>
+      plainToInstance(
+        UserRole,
+        {
+          user_id: id,
+          role_id,
+        },
+        {
+          ignoreDecorators: true,
+        },
+      ),
+    );
+    if (userRoles.length > 0) {
+      await this.userRoleRepository.save(userRoles);
+    }
+    return ResponseDto.success();
   }
 }

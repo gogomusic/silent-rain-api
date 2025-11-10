@@ -18,5 +18,5 @@
     "strictBindCallApply": true,
     "noFallthroughCasesInSwitch": true
   },
-  "exclude": [".husky", "dist"]
+  "exclude": [".husky", "dist", "template"]
 }

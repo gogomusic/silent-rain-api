@@ -6,8 +6,8 @@ export enum UserType {
   /** 普通用户 */ NORMAL_USER = 1,
 }
 
-/** 权限类型 */
-export enum PermissionType {
+/** 菜单类型 */
+export enum MenuType {
   /** 菜单 */ MENU = 0,
   /** 按钮 */ BUTTON = 1,
 }
@@ -36,4 +36,9 @@ export enum DeviceType {
 export enum OperationResultEnum {
   /** 失败 */ FAIL = 0,
   /** 成功 */ SUCCESS = 1,
+}
+
+export enum YesOrNoEnum {
+  /** 否 */ NO = 0,
+  /** 是 */ YES = 1,
 }

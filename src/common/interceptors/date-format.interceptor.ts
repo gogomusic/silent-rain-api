@@ -10,24 +10,24 @@ import { ResponseDto } from '../http/dto/response.dto';
 
 /** 日期格式化拦截器
  * @description
- * NestJS拦截器，用于统一格式化响应中的日期字段（如`create_time`和`update_time`）。
+ * NestJS拦截器，用于统一格式化响应中的日期字段（如`created_at`和`updated_at`）。
  * 支持嵌套对象和数组结构，自动将日期格式化为`YYYY-MM-DD HH:mm:ss`字符串。
  *
  * @example
  * // 自动格式化返回数据中的日期字段
  * {
- *   create_time: new Date(),
- *   update_time: '2024-06-01T12:00:00Z'
+ *   created_at: new Date(),
+ *   updated_at: '2024-06-01T12:00:00Z'
  * }
  * =>
  * {
- *   create_time: '2024-06-01 12:00:00',
- *   update_time: '2024-06-01 12:00:00'
+ *   created_at: '2024-06-01 12:00:00',
+ *   updated_at: '2024-06-01 12:00:00'
  * }
  */
 @Injectable()
 export class DateFormatInterceptor implements NestInterceptor {
-  #dateFields = ['create_time', 'update_time'];
+  #dateFields = ['created_at', 'updated_at'];
 
   intercept(_context: ExecutionContext, next: CallHandler) {
     return next.handle().pipe(map((data) => this.formatDates(data)));

@@ -1,10 +1,14 @@
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { Exclude, Expose } from 'class-transformer';
 import { BasicEntity } from 'src/common/entity/time.entity';
 import { StatusEnum, UserType } from 'src/common/enum/common.enum';
+import { FileBaseDto } from 'src/common/file/dto/file-base.dto';
 
 import { Column, Entity } from 'typeorm';
 
 @Entity()
 export class User extends BasicEntity {
+  @ApiProperty({ description: '用户名' })
   @Column({
     type: 'varchar',
     length: 32,
@@ -14,6 +18,7 @@ export class User extends BasicEntity {
   })
   username: string;
 
+  @ApiProperty({ description: '昵称' })
   @Column({
     type: 'varchar',
     length: 32,
@@ -23,6 +28,8 @@ export class User extends BasicEntity {
   })
   nickname: string;
 
+  @ApiHideProperty()
+  @Exclude()
   @Column({
     type: 'varchar',
     nullable: false,
@@ -30,6 +37,8 @@ export class User extends BasicEntity {
   })
   password: string;
 
+  @ApiHideProperty()
+  @Exclude()
   @Column({
     type: 'varchar',
     nullable: false,
@@ -37,13 +46,18 @@ export class User extends BasicEntity {
   })
   salt: string;
 
+  @ApiProperty({
+    description: '用户类型 0:超级管理员 1:普通用户',
+    enum: UserType,
+  })
   @Column({
     type: 'tinyint',
-    comment: '用户类型 0超级管理员 1普通用户',
+    comment: '用户类型 0:超级管理员 1:普通用户',
     default: 1,
   })
   user_type: UserType;
 
+  @ApiProperty({ description: '邮箱' })
   @Column({
     type: 'varchar',
     nullable: false,
@@ -52,17 +66,49 @@ export class User extends BasicEntity {
   })
   email: string;
 
+  @ApiProperty({
+    description: '用户状态 0:停用 1:启用',
+    enum: StatusEnum,
+  })
   @Column({
     type: 'tinyint',
-    comment: '用户状态 0停用 1启用',
+    comment: '用户状态 0:停用 1:启用',
     nullable: false,
     default: 1,
   })
   status: StatusEnum;
 
-  @Column({ type: 'varchar', comment: '头像', default: '' })
+  @ApiProperty({ description: '头像' })
+  @Column({ type: 'int', comment: '头像' })
   avatar: number;
 
+  @ApiProperty({ description: '描述' })
   @Column({ type: 'varchar', comment: '描述', default: '' })
   description: string;
+
+  @ApiProperty({
+    description: '角色',
+    type: 'array',
+    items: { type: 'number' },
+    readOnly: true,
+  })
+  @Expose()
+  roles: number[] = [];
+
+  @ApiProperty({
+    description: '头像详情',
+    type: FileBaseDto,
+    readOnly: true,
+  })
+  @Expose()
+  avatar_info: FileBaseDto;
+
+  @ApiProperty({
+    description: '权限',
+    type: 'array',
+    items: { type: 'string' },
+    readOnly: true,
+  })
+  @Expose()
+  permissions: string[] = [];
 }

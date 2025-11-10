@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { SysService } from './sys.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
 import { ApiGenericResponse } from 'src/common/decorators/api-generic-response.decorator';
@@ -22,11 +22,13 @@ export class SysController {
   /** 获取注册验证码 */
   @ApiOperation({
     summary: '获取注册验证码',
-    description: '通过邮箱获取注册验证码',
+    description: '注册验证码将发送至用户邮箱',
   })
   @Get('registerCode')
   @LogAction('获取注册验证码')
+  @ApiGenericResponse()
   @AllowNoToken()
+  @ApiSecurity({})
   registerCode(@Query('email') email: string) {
     return this.sysService.sendMailForRegister(email);
   }
@@ -38,7 +40,9 @@ export class SysController {
   })
   @Get('changePwdCode')
   @LogAction('获取修改密码验证码')
+  @ApiGenericResponse()
   @AllowNoToken()
+  @ApiSecurity({})
   changePwdCode(@Query('email') email: string) {
     return this.sysService.sendMailForChangePwd(email);
   }
@@ -51,6 +55,7 @@ export class SysController {
   @Post('register')
   @ApiGenericResponse()
   @AllowNoToken()
+  @ApiSecurity({})
   register(@Body() createUserDto: CreateUserDto) {
     return this.userService.register(createUserDto);
   }
@@ -62,6 +67,7 @@ export class SysController {
   @Get('getPublicKey')
   @ApiGenericResponse({ model: String })
   @AllowNoToken()
+  @ApiSecurity({})
   getPublicKey() {
     return this.sysService.getPublicKey();
   }

@@ -57,7 +57,7 @@ export class File {
   size: number;
 
   @CreateDateColumn({ type: 'timestamp', comment: '上传时间' })
-  create_time: Date;
+  created_at: Date;
 
   @Column({ type: 'timestamp', comment: '过期时间', default: null })
   expired_time: Date;

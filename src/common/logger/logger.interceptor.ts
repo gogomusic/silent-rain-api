@@ -12,7 +12,7 @@ import { LogService } from 'src/log/log.service';
 import { User } from 'src/user/entities/user.entity';
 import { UAParser } from 'ua-parser-js';
 import { DeviceType, OperationResultEnum } from '../enum/common.enum';
-import { normalizeIp } from 'src/utils';
+import { normalizeIp } from 'src/common/utils';
 import { ResponseDto } from '../http/dto/response.dto';
 import { Reflector } from '@nestjs/core';
 import {
@@ -161,12 +161,15 @@ export class LoggerInterceptor implements NestInterceptor {
             duration: Date.now() - start,
           });
         }
+        let result: ResponseDto | undefined = undefined;
         if (error instanceof TimeoutError) {
-          return ResponseDto.error('请求超时');
+          result = ResponseDto.error('请求超时');
         } else {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return ResponseDto.error(errorMessage);
+          result = ResponseDto.error(errorMessage);
         }
+        delete result._isResponseDto;
+        return result;
       }),
     );
   }

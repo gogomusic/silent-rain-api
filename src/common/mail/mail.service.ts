@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Transporter, createTransport } from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
-import { getRedisKey } from 'src/utils/redis';
+import { getRedisKey } from 'src/common/utils/redis';
 import { RedisKeyPrefix } from '../enum/redis-key.enum';
 import dayjs from 'dayjs';
 import { RedisService } from '../redis/redis.service';

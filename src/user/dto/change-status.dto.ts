@@ -9,7 +9,7 @@ export class ChangeStatusDto {
   id: number;
 
   @ApiProperty({
-    description: '用户状态 0停用 1启用',
+    description: '用户状态 0:停用 1:启用',
     enum: StatusEnum,
     enumName: 'UserStatusEnum',
   })

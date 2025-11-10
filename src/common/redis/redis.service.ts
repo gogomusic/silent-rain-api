@@ -34,13 +34,23 @@ export class RedisService {
   }
 
   /** 哈希操作 - 设置字段 */
-  async hSet(
-    key: string,
-    value: Record<string, string | number | boolean | Date>,
-  ): Promise<number> {
+  async hSet(key: string, value: Record<string, any>): Promise<number> {
     const newValue = Object.entries(value)
-      .flat()
-      .map((item) => String(item));
+      .map((item) => {
+        const v = item[1];
+        if (
+          v instanceof Date ||
+          typeof v === 'string' ||
+          typeof v === 'number' ||
+          typeof v === 'boolean'
+        ) {
+          return [item[0], v.toString()];
+        } else {
+          return null;
+        }
+      })
+      .filter((i) => i !== null)
+      .flat();
     return await this.client.hSet(key, newValue);
   }
 

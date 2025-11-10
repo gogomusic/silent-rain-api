@@ -6,7 +6,13 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig(
   {
-    ignores: ['eslint.config.mjs', 'node_modules', 'dist', '.husky'],
+    ignores: [
+      'eslint.config.mjs',
+      'node_modules',
+      'dist',
+      '.husky',
+      'template',
+    ],
   },
   eslint.configs.recommended,
   eslintPluginPrettierRecommended,
