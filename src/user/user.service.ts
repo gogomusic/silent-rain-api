@@ -20,6 +20,7 @@ import { UserResetPwdDto } from './dto/user-reset-pwd.dto';
 import { ListResult } from 'src/common/utils';
 import { SetRolesDto } from './dto/set-roles.dto.td';
 import { UserRole } from './entities/user-role.entity';
+import { RoleService } from 'src/role/role.service';
 
 @Injectable()
 export class UserService {
@@ -31,6 +32,7 @@ export class UserService {
     private readonly dataSource: DataSource,
     private readonly redisService: RedisService,
     private readonly sysService: SysService,
+    private readonly roleService: RoleService,
   ) {}
 
   /** 用户注册 */
@@ -86,6 +88,19 @@ export class UserService {
     >;
     const redisKey = getRedisKey(RedisKeyPrefix.USER_INFO, rest.id);
     await this.redisService.hSet(redisKey, rest);
+    const { id } = await this.roleService.createGuestRole();
+    await this.userRoleRepository.save(
+      plainToInstance(
+        UserRole,
+        {
+          user_id: rest.id,
+          role_id: id,
+        },
+        {
+          ignoreDecorators: true,
+        },
+      ),
+    );
     return ResponseDto.success(null, '注册成功');
   }
 

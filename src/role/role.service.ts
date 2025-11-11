@@ -65,7 +65,19 @@ export class RoleService {
     const roleMenus = await this.roleMenuRepository.find({
       where: { role_id: roleId },
     });
-    console.log(roleMenus);
     return roleMenus.map((rm) => rm.menu_id);
+  }
+
+  async createGuestRole() {
+    let guestRole = await this.roleRepository.findOne({
+      where: { name: '游客' },
+    });
+    if (!guestRole) {
+      guestRole = await this.roleRepository.save({
+        name: '游客',
+        remark: '系统内置游客角色',
+      });
+    }
+    return guestRole;
   }
 }

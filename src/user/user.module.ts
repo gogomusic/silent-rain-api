@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { SysModule } from 'src/sys/sys.module';
 import { UserRole } from './entities/user-role.entity';
 import { MenuModule } from 'src/menu/menu.module';
+import { RoleModule } from 'src/role/role.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { MenuModule } from 'src/menu/menu.module';
     TypeOrmModule.forFeature([User, UserRole]),
     forwardRef(() => SysModule),
     MenuModule,
+    RoleModule,
   ],
   controllers: [UserController],
   providers: [UserService, JwtService],

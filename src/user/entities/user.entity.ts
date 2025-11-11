@@ -79,7 +79,7 @@ export class User extends BasicEntity {
   status: StatusEnum;
 
   @ApiProperty({ description: '头像' })
-  @Column({ type: 'int', comment: '头像' })
+  @Column({ type: 'int', comment: '头像', nullable: true })
   avatar: number;
 
   @ApiProperty({ description: '描述' })

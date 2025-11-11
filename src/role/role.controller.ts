@@ -21,6 +21,7 @@ import { ApiGenericResponse } from 'src/common/decorators/api-generic-response.d
 import { Role } from './entities/role.entity';
 import { RoleListDto } from './dto/role-list.dto';
 import { AllRolesVo } from './dto/all-roles.vo';
+import { AllowNoPermission } from 'src/common/decorators/permission.decorator';
 
 @ApiTags('角色 /role')
 @LogModule('角色')
@@ -59,6 +60,7 @@ export class RoleController {
     model: AllRolesVo,
     isList: true,
   })
+  @AllowNoPermission()
   @Get('all')
   all() {
     return this.roleService.all();

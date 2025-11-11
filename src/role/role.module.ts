@@ -9,5 +9,6 @@ import { RoleMenu } from './entities/role-menu.entity';
   imports: [TypeOrmModule.forFeature([Role, RoleMenu])],
   controllers: [RoleController],
   providers: [RoleService],
+  exports: [RoleService],
 })
 export class RoleModule {}
