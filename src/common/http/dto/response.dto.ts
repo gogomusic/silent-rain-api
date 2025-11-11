@@ -1,6 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { ResponseInterface } from './response.interface';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 
 function isSuccessStatus(code: number | string): boolean {
   return Number(code) >= 200 && Number(code) < 300;
@@ -32,6 +32,7 @@ export class ResponseDto<T = any> implements ResponseInterface<T> {
   readonly msg: string | string[];
   @ApiProperty({ description: '请求是否成功' })
   readonly success: boolean;
+  @ApiHideProperty()
   public _isResponseDto?: boolean = true;
 
   constructor(code: number, msg: string | string[], data?: T) {

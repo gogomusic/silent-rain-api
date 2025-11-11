@@ -7,11 +7,13 @@ import { join } from 'path';
 import { Logger } from './common/logger/logger';
 import { ValidationPipe } from '@nestjs/common';
 import { ResponseDto } from './common/http/dto/response.dto';
+import metadata from './metadata';
 
 const PORT = process.env.PORT || 9161;
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  await SwaggerModule.loadPluginMetadata(metadata);
   const swaggerConfig = new DocumentBuilder()
     .setTitle('「静夜聆雨」API文档')
     .setDescription('这是网站「静夜聆雨」的API文档')

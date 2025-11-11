@@ -88,12 +88,12 @@ export class User extends BasicEntity {
 
   @ApiProperty({
     description: '角色',
-    type: 'array',
-    items: { type: 'number' },
+    type: [Number],
     readOnly: true,
+    default: [],
   })
   @Expose()
-  roles: number[] = [];
+  roles: number[];
 
   @ApiProperty({
     description: '头像详情',
@@ -105,10 +105,10 @@ export class User extends BasicEntity {
 
   @ApiProperty({
     description: '权限',
-    type: 'array',
-    items: { type: 'string' },
+    type: [String],
     readOnly: true,
+    default: [],
   })
   @Expose()
-  permissions: string[] = [];
+  permissions: string[];
 }
