@@ -3,6 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
 
@@ -20,6 +23,9 @@ const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
         MYSQL_USER: Joi.string().required(),
         MYSQL_PASSWORD: Joi.string().required(),
         MYSQL_DATABASE: Joi.string().required(),
+        JWT_SECRET: Joi.string().required(),
+        JWT_EXPIRES_IN: Joi.string().required(),
+        JWT_REFRESH_EXPIRES_IN: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRootAsync({
@@ -43,6 +49,13 @@ const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
       },
     }),
     UsersModule,
+    AuthModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
   ],
 })
 export class AppModule {}
