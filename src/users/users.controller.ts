@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { UserRegisterDto } from './dto/user-register.dto';
 import { IntIdQueryDto } from 'src/common/dto/query.dto';
 import { UserLoginDto } from './dto/user-login.dto';
 import { User } from './entities/user.entity';
@@ -24,7 +24,7 @@ export class UsersController {
   ) {}
 
   @Post('register')
-  register(@Body() registerDto: CreateUserDto) {
+  register(@Body() registerDto: UserRegisterDto) {
     return registerDto;
   }
 
