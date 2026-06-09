@@ -1,10 +1,9 @@
-import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { BizCode } from 'src/common/constants/biz-code.enum';
 
 export class ResponseDto<T = unknown> {
-  @ApiProperty({ description: '响应状态码', example: HttpStatus.OK })
+  @ApiProperty({ description: '响应状态码', example: BizCode.SUCCESS })
   @Expose()
   readonly code: BizCode;
 
@@ -28,7 +27,7 @@ export class ResponseDto<T = unknown> {
   }
 
   /** 失败响应 */
-  static fail(msg = '操作失败', code = BizCode.FAIL): ResponseDto {
+  static fail(msg = 'fail', code = BizCode.FAIL): ResponseDto {
     return new ResponseDto(code, msg);
   }
 }

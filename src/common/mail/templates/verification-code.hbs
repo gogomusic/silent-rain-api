@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>邮箱验证码</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f4;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f4;padding:20px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#4f46e5;padding:32px 40px;text-align:center;">
+              <h1 style="color:#ffffff;font-size:24px;margin:0;">静夜聆雨</h1>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px;">
+              <p style="font-size:16px;color:#333;margin:0 0 16px;">您好：</p>
+              <p style="font-size:14px;color:#666;margin:0 0 24px;line-height:1.6;">
+                您正在进行邮箱验证，验证码为：
+              </p>
+              <div style="text-align:center;margin:32px 0;">
+                <span style="display:inline-block;font-size:32px;font-weight:bold;color:#4f46e5;letter-spacing:8px;background-color:#eef2ff;padding:16px 32px;border-radius:8px;">
+                  {{code}}
+                </span>
+              </div>
+              <p style="font-size:12px;color:#999;margin:0;line-height:1.6;">
+                验证码有效期为 5 分钟，请勿泄露给他人。<br />
+                如非本人操作，请忽略此邮件。
+              </p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f9fafb;padding:20px 40px;text-align:center;">
+              <p style="font-size:12px;color:#999;margin:0;">
+                {{copyRight}}
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

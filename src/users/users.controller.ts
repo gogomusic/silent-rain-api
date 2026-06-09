@@ -15,12 +15,14 @@ import { User } from './entities/user.entity';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { AuthService } from 'src/auth/auth.service';
 import { Public } from 'src/auth/token.decorator';
+import { MailService } from 'src/common/mail/mail.service';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
+    private readonly mailService: MailService,
   ) {}
 
   @Post('register')

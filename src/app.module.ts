@@ -4,6 +4,8 @@ import Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { MailModule } from './common/mail/mail.module';
+import { RedisModule } from './common/redis/redis.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 
@@ -16,16 +18,31 @@ const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
       envFilePath: envFile,
       cache: true,
       validationSchema: Joi.object({
+        // 环境变量
         NODE_ENV: Joi.string().valid('development', 'production').required(),
         PORT: Joi.number().port().required(),
+        // MySQL
         MYSQL_HOST: Joi.string().required(),
         MYSQL_PORT: Joi.number().port().required(),
         MYSQL_USER: Joi.string().required(),
         MYSQL_PASSWORD: Joi.string().required(),
         MYSQL_DATABASE: Joi.string().required(),
+        // JWT
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRES_IN: Joi.string().required(),
         JWT_REFRESH_EXPIRES_IN: Joi.string().required(),
+        // Email
+        EMAIL_HOST: Joi.string().required(),
+        EMAIL_PORT: Joi.number().port().required(),
+        EMAIL_SECURE: Joi.boolean().required(),
+        EMAIL_USER: Joi.string().required(),
+        EMAIL_PASS: Joi.string().required(),
+        EMAIL_LIMIT_DAY: Joi.number().integer().min(1).required(),
+        EMAIL_LIMIT_HOUR: Joi.number().integer().min(1).required(),
+        // Redis
+        REDIS_HOST: Joi.string().required(),
+        REDIS_PORT: Joi.number().port().required(),
+        REDIS_PASSWORD: Joi.string().allow('').optional(),
       }),
     }),
     TypeOrmModule.forRootAsync({
@@ -50,6 +67,8 @@ const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
     }),
     UsersModule,
     AuthModule,
+    RedisModule,
+    MailModule,
   ],
   providers: [
     {

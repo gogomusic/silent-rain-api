@@ -13,7 +13,7 @@ export class UserRegisterDto extends UserLoginDto {
 
   @ApiProperty({ description: '邮箱' })
   @IsNotEmpty({ message: '邮箱不能为空' })
-  @IsEmail()
+  @IsEmail({}, { message: '邮箱格式不正确' })
   email: string;
 
   @ApiProperty({ description: '验证码' })

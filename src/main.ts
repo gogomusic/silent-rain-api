@@ -59,7 +59,7 @@ function printBanner(PORT: number, NODE_ENV: string) {
   console.log(`   ${chalk.dim('环境')}      ${chalk.white(NODE_ENV)}`);
 
   console.log(`\n${chalk.green.bold(' ◈ 服务启动')}${divider}`);
-  console.log(`   ${chalk.green('🚀  Silent Rain API 已启动')}`);
+  console.log(`   ${chalk.green('🚀  静夜聆雨 API 已启动')}`);
   console.log(`   ${chalk.dim('IP')}       ${chalk.yellow(ips.join(', '))}`);
   console.log(`   ${chalk.dim('端口')}     ${chalk.yellow(PORT)}\n`);
 }
