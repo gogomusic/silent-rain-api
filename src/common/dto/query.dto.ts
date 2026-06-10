@@ -1,9 +1,18 @@
-import { IsInt, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsInt, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class IntIdQueryDto {
-  @IsNotEmpty({ message: 'id 不能为空' })
+  @ApiProperty({ description: 'ID' })
   @Type(() => Number)
-  @IsInt({ message: 'id 格式错误' })
+  @IsInt({ message: 'id格式错误' })
+  @IsNotEmpty({ message: 'id不能为空' })
   id: number;
+}
+
+export class EmailQueryDto {
+  @ApiProperty({ description: '邮箱' })
+  @IsEmail({}, { message: '邮箱格式错误' })
+  @IsNotEmpty({ message: '邮箱不能为空' })
+  email: string;
 }

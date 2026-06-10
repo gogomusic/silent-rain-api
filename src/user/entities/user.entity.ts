@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { BasicEntity } from 'src/common/entities/basic.entity';
 import { Entity, Column } from 'typeorm';
 
-@Entity('users')
+@Entity('user')
 export class User extends BasicEntity {
   @ApiProperty({ description: '用户名' })
   @Column({ length: 32, unique: true, comment: '用户名' })
@@ -13,7 +13,7 @@ export class User extends BasicEntity {
   nickname: string;
 
   @ApiProperty({ description: '密码' })
-  @Column({ length: 32, select: false, comment: '密码' })
+  @Column({ length: 60, select: false, comment: '密码' })
   password: string;
 
   @ApiProperty({ description: '邮箱' })

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from './users/users.module';
+import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { MailModule } from './common/mail/mail.module';
 import { RedisModule } from './common/redis/redis.module';
@@ -65,7 +65,7 @@ const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
         };
       },
     }),
-    UsersModule,
+    UserModule,
     AuthModule,
     RedisModule,
     MailModule,

@@ -1,33 +1,75 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { BizCode } from 'src/common/constants/biz-code.enum';
+import { type ErrorCode, ErrorShowType } from './response.enum';
+import { HttpStatus } from '@nestjs/common';
 
-export class ResponseDto<T = unknown> {
-  @ApiProperty({ description: '响应状态码', example: BizCode.SUCCESS })
-  @Expose()
-  readonly code: BizCode;
+interface ResponseStructure<T = unknown> {
+  success: boolean;
+  data?: T;
+  errorCode?: ErrorCode;
+  errorMessage?: string | string[];
+  showType?: ErrorShowType;
+}
 
-  @ApiProperty({ description: '提示消息', example: 'success' })
+export class ResponseDto<T = unknown> implements ResponseStructure<T> {
+  @ApiProperty({ description: '响应状态', example: true })
   @Expose()
-  readonly msg: string;
+  readonly success: boolean;
 
   @ApiProperty({ description: '响应数据', required: false })
   @Expose()
   readonly data?: T;
 
-  constructor(code: BizCode, msg: string, data?: T) {
-    this.code = code;
-    this.msg = msg;
+  @ApiProperty({ description: '错误码', type: Number })
+  @Expose()
+  readonly errorCode?: ErrorCode;
+
+  @ApiProperty({
+    description: '错误消息',
+    oneOf: [
+      { type: 'string' },
+      {
+        type: 'array',
+        items: { type: 'string' },
+      },
+    ],
+  })
+  @Expose()
+  readonly errorMessage?: string | string[];
+
+  @ApiProperty({
+    description: '错误消息展示方式',
+    enum: ErrorShowType,
+    enumName: 'ErrorShowType',
+  })
+  @Expose()
+  readonly showType?: ErrorShowType;
+
+  constructor(
+    success: boolean,
+    data?: T,
+    errorCode?: ErrorCode,
+    errorMessage?: string | string[],
+    showType?: ErrorShowType,
+  ) {
+    this.success = success;
     this.data = data;
+    this.errorCode = errorCode;
+    this.errorMessage = errorMessage;
+    this.showType = showType;
   }
 
   /** 成功响应 */
-  static success<T>(data?: T, msg = 'success'): ResponseDto<T> {
-    return new ResponseDto(BizCode.SUCCESS, msg, data);
+  static success<T>(data?: T): ResponseDto<T> {
+    return new ResponseDto(true, data);
   }
 
   /** 失败响应 */
-  static fail(msg = 'fail', code = BizCode.FAIL): ResponseDto {
-    return new ResponseDto(code, msg);
+  static fail(
+    errorCode: ErrorCode = HttpStatus.BAD_REQUEST,
+    errorMessage?: string | string[],
+    showType: ErrorShowType = ErrorShowType.ERROR_MESSAGE,
+  ): ResponseDto {
+    return new ResponseDto(false, null, errorCode, errorMessage, showType);
   }
 }
