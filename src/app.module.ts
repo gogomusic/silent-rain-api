@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,7 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { MailModule } from './common/mail/mail.module';
 import { RedisModule } from './common/redis/redis.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { LoggerModule } from './common/logger/logger.module';
+import { LoggerMiddleware } from './common/logger/logger.middleware';
+import { HttpExceptionFilter } from './common/http/http-exception.filter';
 
 const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
 
@@ -72,12 +75,21 @@ const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
     AuthModule,
     RedisModule,
     MailModule,
+    LoggerModule,
   ],
   providers: [
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('{*path}');
+  }
+}

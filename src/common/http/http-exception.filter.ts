@@ -3,10 +3,14 @@ import {
   Catch,
   ArgumentsHost,
   HttpException,
+  Inject,
+  HttpStatus,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { ResponseDto } from './dto/response.dto';
 import { ErrorShowType } from './dto/response.enum';
+import { Logger } from '../logger/logger';
+import { normalizeIp } from '../utils';
 
 /** 异常过滤器
  *
@@ -14,15 +18,44 @@ import { ErrorShowType } from './dto/response.enum';
  */
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
+  @Inject(Logger)
+  private readonly logger: Logger;
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const status = exception.getStatus();
+    const request = ctx.getRequest<Request>();
     const exceptionResponse = exception.getResponse();
     const message: string =
       typeof exceptionResponse === 'string'
         ? exceptionResponse
-        : (exceptionResponse as any).message || exception.message;
+        : (exceptionResponse as any).message ||
+          exception.message ||
+          '服务器内部错误';
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
+    const ResponseString =
+      exception.toString() +
+      ' ' +
+      (exception.toString().endsWith(message) ? '' : message);
+    const xffHeader = request.headers['x-forwarded-for'];
+    const xff = Array.isArray(xffHeader) ? xffHeader[0] : (xffHeader ?? '');
+    const ip = normalizeIp(
+      xff
+        ? xff.split(',')[0].trim()
+        : request.socket.remoteAddress || request.ip,
+    );
+    const logFormat = `
+--------------------------------------------------------------------------------
+Url:        ${request.originalUrl}
+Method:     ${request.method}
+IP:         ${ip}
+StatusCode: ${status}
+Response:   ${ResponseString}
+--------------------------------------------------------------------------------
+        `;
+    this.logger.error(logFormat, undefined, 'HttpException filter');
 
     response
       .status(status)

@@ -1,14 +1,12 @@
-import { IsEmail, IsInt, IsNotEmpty } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsEmail, IsNotEmpty, IsNumberString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 /** 整数ID查询参数 */
 export class IntIdQueryDto {
   @ApiProperty({ description: 'ID' })
-  @Type(() => Number)
-  @IsInt({ message: 'id格式错误' })
+  @IsNumberString({}, { message: 'id格式错误' })
   @IsNotEmpty({ message: 'id不能为空' })
-  id: number;
+  id: string;
 }
 
 /** 邮箱查询参数 */

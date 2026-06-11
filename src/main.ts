@@ -7,12 +7,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { ResponseDto } from './common/http/dto/response.dto';
 import { ResponseInterceptor } from './common/http/interceptors/response-interceptor';
-import { HttpExceptionFilter } from './common/http/http-exception.filter';
 import { PostTo200Interceptor } from './common/http/interceptors/post-to-200.interceptor';
+import { Logger } from './common/logger/logger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api');
+  const app = await NestFactory.create(AppModule, { logger: false });
+  app.setGlobalPrefix('api').useLogger(app.get(Logger));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('静夜聆雨 API文档')
@@ -38,20 +38,18 @@ async function bootstrap() {
     jsonDocumentUrl: 'api-json',
   });
 
-  app.useGlobalInterceptors(
-    new ClassSerializerInterceptor(app.get(Reflector)),
-    new PostTo200Interceptor(),
-    new ResponseInterceptor(),
-  );
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-    }),
-  );
-
-  app.useGlobalFilters(new HttpExceptionFilter());
+  app
+    .useGlobalInterceptors(
+      new ClassSerializerInterceptor(app.get(Reflector)),
+      new PostTo200Interceptor(),
+      new ResponseInterceptor(),
+    )
+    .useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+      }),
+    );
 
   const configService = app.get(ConfigService);
   const PORT = Number(configService.get<string>('PORT'));

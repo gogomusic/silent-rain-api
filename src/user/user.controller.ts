@@ -58,7 +58,7 @@ export class UserController {
   @ApiResponse({ model: User })
   @Get('info')
   findOne(@Query() { id }: IntIdQueryDto) {
-    return this.userService.findOneById(id);
+    return this.userService.findOneById(+id);
   }
 
   @ApiOperation({
