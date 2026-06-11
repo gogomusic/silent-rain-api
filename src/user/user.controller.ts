@@ -22,8 +22,10 @@ import { type Request } from 'express';
 import { ResponseDto } from 'src/common/http/dto/response.dto';
 import { ChangePwdDto } from './dto/change-pwd.dto';
 import { ResetPwdDto } from './dto/reset-pwd.dto';
+import { LogModule, LogAction } from 'src/common/logger/operation.decorator';
 
-@ApiTags('用户 /user')
+@LogModule('用户管理')
+@ApiTags('用户管理 /user')
 @Controller('user')
 export class UserController {
   constructor(
@@ -35,6 +37,7 @@ export class UserController {
     summary: '发送注册验证码',
     description: '将注册验证码将发送至用户邮箱',
   })
+  @LogAction('发送注册验证码')
   @ApiResponse()
   @Get('captcha')
   @Public()
@@ -43,8 +46,9 @@ export class UserController {
   }
 
   @ApiOperation({
-    summary: '注册',
+    summary: '用户注册',
   })
+  @LogAction('用户注册')
   @ApiResponse({ model: User })
   @Public()
   @Post('register')
@@ -53,7 +57,7 @@ export class UserController {
   }
 
   @ApiOperation({
-    summary: '详情',
+    summary: '查询用户详情',
   })
   @ApiResponse({ model: User })
   @Get('info')
@@ -73,6 +77,7 @@ export class UserController {
   @ApiOperation({
     summary: '登录',
   })
+  @LogAction('用户登录')
   @ApiResponse({ model: String })
   @Public()
   @UseGuards(LocalAuthGuard)
@@ -85,6 +90,7 @@ export class UserController {
   @ApiOperation({
     summary: '退出登录',
   })
+  @LogAction('退出登录')
   @ApiResponse()
   @Get('logout')
   async logout(@Req() req: Request) {
@@ -95,6 +101,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: '发送重置密码验证码' })
+  @LogAction('发送重置密码验证码')
   @ApiResponse()
   @Public()
   @Get('resetPwdCaptcha')
@@ -103,6 +110,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: '重置密码' })
+  @LogAction('重置密码')
   @ApiResponse()
   @Public()
   @Post('resetPwd')
@@ -111,6 +119,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: '修改密码' })
+  @LogAction('修改密码')
   @ApiResponse()
   @Post('changePwd')
   async changePassword(

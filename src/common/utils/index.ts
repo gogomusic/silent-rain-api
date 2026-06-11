@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { Request } from 'express';
 
 /**
  * 格式化日期
@@ -18,6 +19,16 @@ export class ListResult<T> {
     public list: T[] = [],
     public total = 0,
   ) {}
+}
+
+/** 从请求中提取客户端 IP */
+export function getRequestIp(request: Request): string | undefined {
+  const xffHeader = request.headers['x-forwarded-for'];
+  const xff = Array.isArray(xffHeader) ? xffHeader[0] : (xffHeader ?? '');
+  const rawIp = xff
+    ? xff.split(',')[0].trim()
+    : request.socket.remoteAddress || request.ip;
+  return normalizeIp(rawIp);
 }
 
 /** IP规范化 */

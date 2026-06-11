@@ -10,7 +10,7 @@ import { Response, Request } from 'express';
 import { ResponseDto } from './dto/response.dto';
 import { ErrorShowType } from './dto/response.enum';
 import { Logger } from '../logger/logger';
-import { normalizeIp } from '../utils';
+import { getRequestIp } from '../utils';
 
 /** 异常过滤器
  *
@@ -39,13 +39,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       exception.toString() +
       ' ' +
       (exception.toString().endsWith(message) ? '' : message);
-    const xffHeader = request.headers['x-forwarded-for'];
-    const xff = Array.isArray(xffHeader) ? xffHeader[0] : (xffHeader ?? '');
-    const ip = normalizeIp(
-      xff
-        ? xff.split(',')[0].trim()
-        : request.socket.remoteAddress || request.ip,
-    );
+    const ip = getRequestIp(request);
     const logFormat = `
 --------------------------------------------------------------------------------
 Url:        ${request.originalUrl}

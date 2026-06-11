@@ -17,11 +17,6 @@ export enum StatusEnum {
   /** 启用 */ ENABLED = 1,
 }
 
-export enum LoginType {
-  /** 退出系统 */ LOGIN = 0,
-  /** 登录系统 */ LOGOUT = 1,
-}
-
 export enum DeviceType {
   console = '游戏主机',
   desktop = '电脑',
@@ -31,14 +26,4 @@ export enum DeviceType {
   tablet = '平板电脑',
   wearable = '可穿戴设备',
   xr = '扩展现实设备',
-}
-
-export enum OperationResultEnum {
-  /** 失败 */ FAIL = 0,
-  /** 成功 */ SUCCESS = 1,
-}
-
-export enum YesOrNoEnum {
-  /** 否 */ NO = 0,
-  /** 是 */ YES = 1,
 }

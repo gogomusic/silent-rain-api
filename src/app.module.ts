@@ -7,10 +7,12 @@ import { AuthModule } from './auth/auth.module';
 import { MailModule } from './common/mail/mail.module';
 import { RedisModule } from './common/redis/redis.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerModule } from './common/logger/logger.module';
 import { LoggerMiddleware } from './common/logger/logger.middleware';
 import { HttpExceptionFilter } from './common/http/http-exception.filter';
+import { LogModule } from './log/log.module';
+import { LoggerInterceptor } from './common/logger/logger.interceptor';
 
 const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
 
@@ -76,11 +78,16 @@ const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
     RedisModule,
     MailModule,
     LoggerModule,
+    LogModule,
   ],
   providers: [
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggerInterceptor,
     },
     {
       provide: APP_FILTER,

@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Logger } from './logger';
 import { NextFunction, Request, Response } from 'express';
-import { normalizeIp } from '../utils';
+import { getRequestIp } from '../utils';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
@@ -13,11 +13,7 @@ export class LoggerMiddleware implements NestMiddleware {
     res.on('finish', () => {
       const statusCode = res.statusCode;
       const duration = Date.now() - start;
-      const xffHeader = req.headers['x-forwarded-for'];
-      const xff = Array.isArray(xffHeader) ? xffHeader[0] : (xffHeader ?? '');
-      const ip = normalizeIp(
-        xff ? xff.split(',')[0].trim() : req.socket.remoteAddress || req.ip,
-      );
+      const ip = getRequestIp(req);
       const userAgent = req.headers['user-agent'] || '';
 
       const logFormat = `

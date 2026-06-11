@@ -57,9 +57,9 @@ export class UserService {
   }
 
   async create(registerDto: UserRegisterDto) {
-    const { password, confirm, ...rest } = registerDto;
+    const { password, confirmPassword, ...rest } = registerDto;
 
-    if (password !== confirm) {
+    if (password !== confirmPassword) {
       throw new UnprocessableEntityException('两次输入的密码不一致');
     }
 
@@ -101,9 +101,9 @@ export class UserService {
 
   /** 重置密码 */
   async resetPassword(dto: ResetPwdDto) {
-    const { email, captcha, password, confirm } = dto;
+    const { email, captcha, password, confirmPassword } = dto;
 
-    if (password !== confirm) {
+    if (password !== confirmPassword) {
       throw new UnprocessableEntityException('两次输入的密码不一致');
     }
 
@@ -132,9 +132,9 @@ export class UserService {
 
   /** 修改密码（需登录） */
   async changePassword(userId: number, dto: ChangePwdDto) {
-    const { oldPassword, newPassword, confirmNewPassword } = dto;
+    const { oldPassword, newPassword, confirmPassword } = dto;
 
-    if (newPassword !== confirmNewPassword) {
+    if (newPassword !== confirmPassword) {
       throw new UnprocessableEntityException('两次输入的密码不一致');
     }
 

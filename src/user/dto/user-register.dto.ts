@@ -9,7 +9,7 @@ export class UserRegisterDto extends UserLoginDto {
 
   @ApiProperty({ description: '确认密码' })
   @IsNotEmpty({ message: '确认密码不能为空' })
-  confirm: string;
+  confirmPassword: string;
 
   @ApiProperty({ description: '邮箱' })
   @IsNotEmpty({ message: '邮箱不能为空' })

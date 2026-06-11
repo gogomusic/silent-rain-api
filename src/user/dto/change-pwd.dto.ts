@@ -13,5 +13,5 @@ export class ChangePwdDto {
 
   @ApiProperty({ description: '确认新密码' })
   @IsNotEmpty({ message: '确认密码不能为空' })
-  confirmNewPassword: string;
+  confirmPassword: string;
 }
