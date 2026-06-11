@@ -1,8 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -11,17 +7,17 @@ import { UserRegisterDto } from './dto/user-register.dto';
 import { MailService } from 'src/common/mail/mail.service';
 import { RedisKeyPrefix } from 'src/common/enums/redis-key.enum';
 import { getRedisKey } from 'src/common/utils/redis';
-import { REDIS_CLIENT, RedisClientType } from 'src/common/redis/redis.module';
 import { ResponseDto } from 'src/common/http/dto/response.dto';
 import { ResetPwdDto } from './dto/reset-pwd.dto';
 import { ChangePwdDto } from './dto/change-pwd.dto';
+import { RedisService } from 'src/common/redis/redis.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly mailService: MailService,
-    @Inject(REDIS_CLIENT) private readonly redis: RedisClientType,
+    private readonly redisService: RedisService,
   ) {}
 
   /** 通过用户ID查找用户信息 */
@@ -56,7 +52,7 @@ export class UserService {
     const captcha = Math.random().toString().slice(-6);
     await this.mailService.sendVerificationCode(email, captcha);
     const redisKey = getRedisKey(RedisKeyPrefix.REGISTER_CODE, email);
-    await this.redis.setEx(redisKey, 5 * 60, captcha); // 设置验证码有效期为5分钟
+    await this.redisService.set(redisKey, captcha, 5 * 60); // 设置验证码有效期为5分钟
     return ResponseDto.success();
   }
 
@@ -99,7 +95,7 @@ export class UserService {
     const captcha = Math.random().toString().slice(-6);
     await this.mailService.sendVerificationCode(email, captcha);
     const redisKey = getRedisKey(RedisKeyPrefix.CHANGE_PWD_CODE, email);
-    await this.redis.setEx(redisKey, 5 * 60, captcha);
+    await this.redisService.set(redisKey, captcha, 5 * 60);
     return ResponseDto.success();
   }
 
@@ -113,7 +109,7 @@ export class UserService {
 
     // 验证验证码
     const redisKey = getRedisKey(RedisKeyPrefix.CHANGE_PWD_CODE, email);
-    const storedCaptcha = await this.redis.get(redisKey);
+    const storedCaptcha = await this.redisService.get(redisKey);
     if (!storedCaptcha || storedCaptcha !== captcha) {
       throw new UnprocessableEntityException('验证码错误或已过期');
     }
@@ -129,7 +125,7 @@ export class UserService {
     await this.userRepository.update(user.id, { password: hashedPassword });
 
     // 删除验证码
-    await this.redis.del(redisKey);
+    await this.redisService.del(redisKey);
 
     return ResponseDto.success();
   }

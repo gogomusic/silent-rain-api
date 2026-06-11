@@ -2,8 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient } from 'redis';
 import { RedisService } from './redis.service';
-
-export const REDIS_CLIENT = 'REDIS_CLIENT';
+import { REDIS_CLIENT } from './redis.constant';
 
 const createRedisClient = async (configService: ConfigService) => {
   return await createClient({
@@ -18,6 +17,7 @@ const createRedisClient = async (configService: ConfigService) => {
 @Global()
 @Module({
   providers: [
+    RedisService,
     {
       provide: REDIS_CLIENT,
       inject: [ConfigService],
