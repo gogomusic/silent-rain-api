@@ -7,7 +7,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { ResponseDto } from './common/http/dto/response.dto';
 import { ResponseInterceptor } from './common/http/interceptors/response-interceptor';
-import { HttpExceptionFilter } from './common/http/filters/http-exception.filter';
+import { HttpExceptionFilter } from './common/http/http-exception.filter';
 import { PostTo200Interceptor } from './common/http/interceptors/post-to-200.interceptor';
 
 async function bootstrap() {

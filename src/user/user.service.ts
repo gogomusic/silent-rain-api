@@ -11,8 +11,7 @@ import { UserRegisterDto } from './dto/user-register.dto';
 import { MailService } from 'src/common/mail/mail.service';
 import { RedisKeyPrefix } from 'src/common/enums/redis-key.enum';
 import { getRedisKey } from 'src/common/utils/redis';
-import { REDIS_CLIENT } from 'src/common/redis/redis.module';
-import Redis from 'ioredis';
+import { REDIS_CLIENT, RedisClientType } from 'src/common/redis/redis.module';
 import { ResponseDto } from 'src/common/http/dto/response.dto';
 import { ResetPwdDto } from './dto/reset-pwd.dto';
 import { ChangePwdDto } from './dto/change-pwd.dto';
@@ -22,7 +21,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly mailService: MailService,
-    @Inject(REDIS_CLIENT) private readonly redis: Redis,
+    @Inject(REDIS_CLIENT) private readonly redis: RedisClientType,
   ) {}
 
   /** 通过用户ID查找用户信息 */
@@ -57,7 +56,7 @@ export class UserService {
     const captcha = Math.random().toString().slice(-6);
     await this.mailService.sendVerificationCode(email, captcha);
     const redisKey = getRedisKey(RedisKeyPrefix.REGISTER_CODE, email);
-    await this.redis.setex(redisKey, 5 * 60, captcha); // 设置验证码有效期为5分钟
+    await this.redis.setEx(redisKey, 5 * 60, captcha); // 设置验证码有效期为5分钟
     return ResponseDto.success();
   }
 
@@ -84,6 +83,7 @@ export class UserService {
       password: hashedPassword,
     });
 
+    await this.mailService.sendWelcome(user.email, user.nickname);
     return this.userRepository.save(user);
   }
 
@@ -99,7 +99,7 @@ export class UserService {
     const captcha = Math.random().toString().slice(-6);
     await this.mailService.sendVerificationCode(email, captcha);
     const redisKey = getRedisKey(RedisKeyPrefix.CHANGE_PWD_CODE, email);
-    await this.redis.setex(redisKey, 5 * 60, captcha);
+    await this.redis.setEx(redisKey, 5 * 60, captcha);
     return ResponseDto.success();
   }
 

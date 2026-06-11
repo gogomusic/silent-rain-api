@@ -5,8 +5,8 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { ResponseDto } from '../dto/response.dto';
-import { ErrorShowType } from '../dto/response.enum';
+import { ResponseDto } from './dto/response.dto';
+import { ErrorShowType } from './dto/response.enum';
 
 /** 异常过滤器
  *

@@ -14,7 +14,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "cross-env NODE_ENV=production node dist/main",
     "lint": "eslint \"{src,apps,libs}/**/*.ts\" --fix",
-    "prepare": "husky"
+    "prepare": "node .husky/install.mjs"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.3.6",
@@ -33,29 +33,26 @@
     "class-validator": "^0.15.1",
     "dayjs": "^1.11.21",
     "handlebars": "^4.7.9",
-    "ioredis": "^5.11.1",
     "joi": "^18.2.1",
     "mysql2": "^3.22.5",
     "nodemailer": "^8.0.10",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "redis": "^4.7.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "typeorm": "^1.0.0"
   },
-  "lint-staged": {
-    "*.ts": [
-      "eslint --fix",
-      "prettier --write"
-    ]
-  },
   "devDependencies": {
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
+    "@commitlint/types": "^21.0.1",
     "@eslint/js": "^10.0.1",
-    "@nestjs/cli": "^11.0.22",
+    "@nestjs/cli": "^11.0.23",
     "@nestjs/schematics": "^11.1.0",
     "@swc/cli": "^0.7.10",
-    "@swc/core": "^1.15.40",
+    "@swc/core": "^1.15.41",
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.6",
     "@types/node": "^22.19.20",
@@ -68,10 +65,16 @@
     "globals": "^16.5.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.7",
-    "prettier": "^3.8.3",
+    "prettier": "^3.8.4",
     "source-map-support": "^0.5.21",
     "ts-loader": "^9.6.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.61.0"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }

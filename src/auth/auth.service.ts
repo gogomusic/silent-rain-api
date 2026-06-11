@@ -1,9 +1,8 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import Redis from 'ioredis';
 import { RedisKeyPrefix } from 'src/common/enums/redis-key.enum';
-import { REDIS_CLIENT } from 'src/common/redis/redis.module';
+import { RedisService } from 'src/common/redis/redis.service';
 import { getRedisKey } from 'src/common/utils/redis';
 import { UserService } from 'src/user/user.service';
 
@@ -13,7 +12,7 @@ export class AuthService {
     @Inject(forwardRef(() => UserService))
     private readonly UserService: UserService,
     private readonly jwtService: JwtService,
-    @Inject(REDIS_CLIENT) private readonly redis: Redis,
+    private readonly redisService: RedisService,
   ) {}
 
   async validateUser(username: string, password: string) {
@@ -35,6 +34,7 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
+  /** 退出登录 */
   async logout(token: string) {
     // 解析 token 获取过期时间
     const decoded = this.jwtService.decode(token);
@@ -44,7 +44,7 @@ export class AuthService {
     const ttl = decoded.exp - now; // 剩余有效秒数
     if (ttl > 0) {
       const redisKey = getRedisKey(RedisKeyPrefix.TOKEN_BLACKLIST, token);
-      await this.redis.setex(redisKey, ttl, '1');
+      await this.redisService.set(redisKey, '1', ttl);
     }
   }
 }

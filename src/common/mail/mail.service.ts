@@ -1,17 +1,17 @@
-import { Inject, Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailerService } from '@nestjs-modules/mailer';
-import Redis from 'ioredis';
 import dayjs from 'dayjs';
-import { REDIS_CLIENT } from '../redis/redis.module';
 import { SendMailDto } from './dto/send-mail.dto';
+import { RedisKeyPrefix } from '../enums/redis-key.enum';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class MailService {
   constructor(
     private readonly mailerService: MailerService,
     private readonly configService: ConfigService,
-    @Inject(REDIS_CLIENT) private readonly redis: Redis,
+    private readonly redisService: RedisService,
   ) {}
 
   private copyRight() {
@@ -41,14 +41,14 @@ export class MailService {
   /**
    * 发送欢迎邮件
    */
-  async sendWelcome(to: string, username: string): Promise<void> {
+  async sendWelcome(to: string, nickname: string): Promise<void> {
     await this.checkRateLimit();
     try {
       await this.mailerService.sendMail({
         to,
         subject: '【静夜聆雨】欢迎注册',
         template: 'welcome',
-        context: { username, copyRight: this.copyRight() },
+        context: { nickname, copyRight: this.copyRight() },
       });
       await this.incrementRateCounter();
     } catch (_error) {
@@ -80,12 +80,12 @@ export class MailService {
     const limitDay = this.configService.get<number>('EMAIL_LIMIT_DAY') ?? 50;
     const limitHour = this.configService.get<number>('EMAIL_LIMIT_HOUR') ?? 10;
 
-    const hourKey = `email:limit:hour:${dayjs().format('YYYY-MM-DD-HH')}`;
-    const dayKey = `email:limit:day:${dayjs().format('YYYY-MM-DD')}`;
+    const hourKey = `${RedisKeyPrefix.EMAIL_LIMIT}hour:${dayjs().format('YYYY-MM-DD-HH')}`;
+    const dayKey = `${RedisKeyPrefix.EMAIL_LIMIT}day:${dayjs().format('YYYY-MM-DD')}`;
 
     const [hourCount, dayCount] = await Promise.all([
-      this.redis.get(hourKey),
-      this.redis.get(dayKey),
+      this.redisService.get(hourKey),
+      this.redisService.get(dayKey),
     ]);
 
     if (Number(hourCount) >= limitHour) {
@@ -104,12 +104,13 @@ export class MailService {
   }
 
   private async incrementRateCounter(): Promise<void> {
-    const hourKey = `email:limit:hour:${dayjs().format('YYYY-MM-DD-HH')}`;
-    const dayKey = `email:limit:day:${dayjs().format('YYYY-MM-DD')}`;
+    const hourKey = `${RedisKeyPrefix.EMAIL_LIMIT}hour:${dayjs().format('YYYY-MM-DD-HH')}`;
+    const dayKey = `${RedisKeyPrefix.EMAIL_LIMIT}day:${dayjs().format('YYYY-MM-DD')}`;
 
+    const client = this.redisService.getClient();
     await Promise.all([
-      this.redis.multi().incr(hourKey).expire(hourKey, 3600).exec(),
-      this.redis.multi().incr(dayKey).expire(dayKey, 86400).exec(),
+      client.multi().incr(hourKey).expire(hourKey, 3600).exec(),
+      client.multi().incr(dayKey).expire(dayKey, 86400).exec(),
     ]);
   }
 }

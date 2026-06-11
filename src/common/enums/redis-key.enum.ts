@@ -4,6 +4,8 @@ export const enum RedisKeyPrefix {
   REGISTER_CODE = 'registry_code:',
   /** 修改密码验证码 */
   CHANGE_PWD_CODE = 'change_pwd_code:',
+  /** 邮件服务 */
+  EMAIL_LIMIT = 'email:limit:',
   /** 用户信息 */
   USER_INFO = 'user:info:',
   /** Token黑名单 */

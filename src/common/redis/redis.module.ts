@@ -1,8 +1,19 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import Redis from 'ioredis';
+import { createClient } from 'redis';
+import { RedisService } from './redis.service';
 
 export const REDIS_CLIENT = 'REDIS_CLIENT';
+
+const createRedisClient = async (configService: ConfigService) => {
+  return await createClient({
+    socket: {
+      host: configService.get<string>('REDIS_HOST'),
+      port: configService.get<number>('REDIS_PORT'),
+    },
+    password: configService.get<string>('REDIS_PASSWORD') || undefined,
+  }).connect();
+};
 
 @Global()
 @Module({
@@ -10,16 +21,9 @@ export const REDIS_CLIENT = 'REDIS_CLIENT';
     {
       provide: REDIS_CLIENT,
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        return new Redis({
-          host: configService.get<string>('REDIS_HOST'),
-          port: configService.get<number>('REDIS_PORT'),
-          password: configService.get<string>('REDIS_PASSWORD') || undefined,
-          lazyConnect: true,
-        });
-      },
+      useFactory: createRedisClient,
     },
   ],
-  exports: [REDIS_CLIENT],
+  exports: [RedisService],
 })
 export class RedisModule {}

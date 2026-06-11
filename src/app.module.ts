@@ -43,6 +43,9 @@ const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
         REDIS_HOST: Joi.string().required(),
         REDIS_PORT: Joi.number().port().required(),
         REDIS_PASSWORD: Joi.string().allow('').optional(),
+        // 文件上传
+        FILE_UPLOAD_DIR: Joi.string().required(),
+        FILE_UPLOAD_LIMIT_MB: Joi.number().required(),
       }),
     }),
     TypeOrmModule.forRootAsync({

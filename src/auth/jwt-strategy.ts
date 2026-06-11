@@ -1,13 +1,12 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { RedisKeyPrefix } from 'src/common/enums/redis-key.enum';
-import { REDIS_CLIENT } from 'src/common/redis/redis.module';
 import { getRedisKey } from 'src/common/utils/redis';
 import { UserService } from 'src/user/user.service';
-import Redis from 'ioredis';
 import { Request } from 'express';
+import { RedisService } from 'src/common/redis/redis.service';
 
 /** JWT身份验证策略 */
 @Injectable()
@@ -15,7 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly UserService: UserService,
     readonly configService: ConfigService,
-    @Inject(REDIS_CLIENT) private readonly redis: Redis,
+    private readonly redisService: RedisService,
   ) {
     super({
       // JWT 会从 HTTP 请求头的 Authorization 字段中提取 token，格式为 Bearer <token>
@@ -33,7 +32,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const token = ExtractJwt.fromAuthHeaderAsBearerToken()(request);
     if (token) {
       const blacklistKey = getRedisKey(RedisKeyPrefix.TOKEN_BLACKLIST, token);
-      const isBlacklisted = await this.redis.get(blacklistKey);
+      const isBlacklisted = await this.redisService.get(blacklistKey);
       if (isBlacklisted) {
         throw new UnauthorizedException();
       }

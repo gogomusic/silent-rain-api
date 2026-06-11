@@ -1,4 +1,12 @@
 {
   "js/ts.tsdk.path": "node_modules\\typescript\\lib",
-  "cSpell.words": ["ISIN", "ISSN", "rimraf", "setex", "tinyint", "unrs"]
+  "cSpell.words": [
+    "ISIN",
+    "ISSN",
+    "rimraf",
+    "setex",
+    "smarttv",
+    "tinyint",
+    "unrs"
+  ]
 }
