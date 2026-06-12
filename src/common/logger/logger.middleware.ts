@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Logger } from './logger';
 import { NextFunction, Request, Response } from 'express';
-import { getRequestIp } from '../utils';
+import { getRequestIp, maskSensitiveFields } from '../utils';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
@@ -25,7 +25,7 @@ StatusCode:  ${statusCode}
 Duration:    ${duration}ms
 Params:      ${JSON.stringify(req.params, null, 2)}
 Query:       ${JSON.stringify(req.query, null, 2)}
-Body:        ${JSON.stringify(req.body, null, 2)}
+Body:        ${maskSensitiveFields(req.body, undefined, true)}
 UserAgent:   ${userAgent}
 --------------------------------------------------------------------------------
 `;

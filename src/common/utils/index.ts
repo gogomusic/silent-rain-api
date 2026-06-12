@@ -1,6 +1,8 @@
 import dayjs from 'dayjs';
 import { Request } from 'express';
 
+export { SENSITIVE_FIELDS, maskSensitiveFields } from './sensitive';
+
 /**
  * 格式化日期
  * @param value - 日期值

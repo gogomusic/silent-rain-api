@@ -11,7 +11,7 @@ import { catchError, Observable, tap, timeout, TimeoutError } from 'rxjs';
 import { LogService } from 'src/log/log.service';
 import { User } from 'src/user/entities/user.entity';
 import { UAParser } from 'ua-parser-js';
-import { getRequestIp } from 'src/common/utils';
+import { getRequestIp, maskSensitiveFields } from 'src/common/utils';
 import { ResponseDto } from '../http/dto/response.dto';
 import { Reflector } from '@nestjs/core';
 import { Log } from 'src/log/entities/log.entity';
@@ -20,13 +20,6 @@ import { OPERATION_ACTION, OPERATION_MODULE } from './operation.decorator';
 import { Logger } from './logger';
 
 const REQUEST_TIMEOUT = 30000;
-/** 敏感字段，不应记录到日志 */
-const SENSITIVE_FIELDS = [
-  'password',
-  'newPassword',
-  'oldPassword',
-  'confirmPassword',
-];
 
 @Injectable()
 export class LoggerInterceptor implements NestInterceptor {
@@ -138,14 +131,7 @@ export class LoggerInterceptor implements NestInterceptor {
 
   /** 移除敏感字段 */
   private maskSensitiveFields(body: any, files: any): string {
-    const masked = { ...body };
-    SENSITIVE_FIELDS.forEach((field) => {
-      if (field in masked && masked[field]) {
-        masked[field] = '******';
-      }
-    });
-    masked.files = Array.isArray(files) && files.length > 0 ? files : undefined;
-    return JSON.stringify(masked);
+    return maskSensitiveFields(body, files);
   }
 
   /** 更新日志 */
