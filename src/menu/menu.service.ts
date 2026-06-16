@@ -48,14 +48,17 @@ export class MenuService {
         type: true,
         status: true,
       },
+      where: { status: true },
     });
-    return new ListResult(
-      list.filter((i) => i.status),
-      total,
-    );
+    return new ListResult(list, total);
   }
 
   async delete(id: number) {
+    // 检查是否存在子菜单，防止产生脏数据
+    const childCount = await this.menuRepository.countBy({ pid: id });
+    if (childCount > 0) {
+      return ResponseDto.fail(400, '存在子菜单，无法删除');
+    }
     await this.menuRepository.delete(id);
     return ResponseDto.success();
   }

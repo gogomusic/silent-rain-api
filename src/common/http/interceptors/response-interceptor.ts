@@ -34,7 +34,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<
           result = data;
         } else result = ResponseDto.success(data);
 
-        const req = context.getArgByIndex(1).req;
+        const req = context.switchToHttp().getRequest();
         const logFormat = `
 --------------------------------------------------------------------------------
 Url:      ${req.originalUrl}

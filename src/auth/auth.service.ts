@@ -10,7 +10,7 @@ import { UserService } from 'src/user/user.service';
 export class AuthService {
   constructor(
     @Inject(forwardRef(() => UserService))
-    private readonly UserService: UserService,
+    private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly redisService: RedisService,
   ) {}
@@ -19,8 +19,8 @@ export class AuthService {
     // 支持用户名或邮箱登录
     const isEmail = username.includes('@');
     const user = isEmail
-      ? await this.UserService.findOneByEmailWithPwd(username)
-      : await this.UserService.findOneByUsernameWithPwd(username);
+      ? await this.userService.findOneByEmailWithPwd(username)
+      : await this.userService.findOneByUsernameWithPwd(username);
     if (user && (await bcrypt.compare(password, user.password))) {
       delete (user as any).password;
       return user;
@@ -34,7 +34,7 @@ export class AuthService {
     const token = this.jwtService.sign(payload);
 
     // 异步记录登录时间，不阻塞响应
-    void this.UserService.updateLastLoginAt(id);
+    void this.userService.updateLastLoginAt(id);
 
     return token;
   }

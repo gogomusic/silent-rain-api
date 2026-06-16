@@ -12,7 +12,7 @@ import { RedisService } from 'src/common/redis/redis.service';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private readonly UserService: UserService,
+    private readonly userService: UserService,
     readonly configService: ConfigService,
     private readonly redisService: RedisService,
   ) {
@@ -37,6 +37,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         throw new UnauthorizedException();
       }
     }
-    return this.UserService.findOneById(payload.sub, true);
+    return this.userService.findOneById(payload.sub, true);
   }
 }

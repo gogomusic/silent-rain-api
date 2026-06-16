@@ -15,7 +15,7 @@ import { ApiResponse } from 'src/common/swagger/api-response.decorator';
 import { RoleCreateDto } from './dto/role-create.dto';
 import { Role } from './entities/role.entity';
 import { RoleListDto } from './dto/role-list.dto';
-import { RoleSelectVo } from './dto/role-select.vo';
+import { RoleSelectVo } from './vo/role-select.vo';
 import { AllowNoPermission } from 'src/auth/token.decorator';
 import { RoleUpdateDto } from './dto/role-update.dto';
 import { IntIdQueryDto } from 'src/common/dto/query.dto';

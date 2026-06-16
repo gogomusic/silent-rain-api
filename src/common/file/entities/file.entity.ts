@@ -37,7 +37,14 @@ export class File {
   mimeType: string;
 
   @ApiProperty({ description: '文件大小（字节）' })
-  @Column({ type: 'bigint', comment: '文件大小（字节）' })
+  @Column({
+    type: 'bigint',
+    comment: '文件大小（字节）',
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => Number(value),
+    },
+  })
   size: number;
 
   @ApiProperty({ description: '上传时间' })

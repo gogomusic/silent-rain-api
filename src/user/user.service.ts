@@ -18,7 +18,7 @@ import { UserRole } from './entities/user-role.entity';
 import { RoleService } from 'src/role/role.service';
 import { UserResetPwdDto } from './dto/user-reset-pwd.dto';
 import { plainToInstance } from 'class-transformer';
-import { UserSetRolesDto } from './dto/user-set-roles.dto.td';
+import { UserSetRolesDto } from './dto/user-set-roles.dto';
 import { UserUpdateSelfDto } from './dto/user-update-self.dto';
 import { UserListDto } from './dto/user-list.dto';
 import { formatDate, ListResult } from 'src/common/utils';
@@ -157,8 +157,7 @@ export class UserService {
     await this.mailService.sendWelcome(user.email, user.nickname);
     const newUser = await this.userRepository.save(user);
     const redisKey = getRedisKey(RedisKeyPrefix.USER_INFO, newUser.id);
-    await this.redisService.del(redisKey);
-    await this.redisService.hSet(redisKey, newUser);
+    await this.redisService.set(redisKey, JSON.stringify(newUser));
     const { id: roleId } = await this.roleService.createGuestRole();
     await this.userRoleRepository.save(
       plainToInstance(
@@ -306,8 +305,7 @@ export class UserService {
     const result = await this.userRepository.save(updatedUser);
 
     const redisKey = getRedisKey(RedisKeyPrefix.USER_INFO, result.id);
-    await this.redisService.del(redisKey);
-    await this.redisService.hSet(redisKey, result);
+    await this.redisService.set(redisKey, JSON.stringify(result));
     return ResponseDto.success();
   }
 

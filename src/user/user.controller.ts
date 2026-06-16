@@ -24,7 +24,7 @@ import { UserChangePwdDto } from './dto/user-change-pwd.dto';
 import { UserResetPwdDto } from './dto/user-reset-pwd.dto';
 import { LogModule, LogAction } from 'src/common/logger/operation.decorator';
 import { MenuService } from 'src/menu/menu.service';
-import { UserSetRolesDto } from './dto/user-set-roles.dto.td';
+import { UserSetRolesDto } from './dto/user-set-roles.dto';
 import { Menu } from 'src/menu/entities/menu.entity';
 import { UserUpdateSelfDto } from './dto/user-update-self.dto';
 import { UserListDto } from './dto/user-list.dto';
