@@ -16,7 +16,7 @@ export class Log {
   @Column({ name: 'user_id', type: 'int', comment: '用户ID', nullable: true })
   userId: number;
 
-  @ApiProperty({ description: '用户名' })
+  @ApiProperty({ description: '用户名', nullable: true })
   @Column({
     type: 'varchar',
     length: 32,
@@ -25,7 +25,7 @@ export class Log {
   })
   username: string;
 
-  @ApiProperty({ description: '昵称' })
+  @ApiProperty({ description: '昵称', nullable: true })
   @Column({
     type: 'varchar',
     length: 32,
@@ -65,9 +65,9 @@ export class Log {
   })
   url: string;
 
-  @ApiProperty({ description: '请求参数' })
+  @ApiProperty({ description: '请求参数', nullable: true })
   @Column({
-    type: 'json',
+    type: 'text',
     comment: '请求参数',
     nullable: true,
   })
@@ -75,7 +75,7 @@ export class Log {
 
   @ApiProperty({ description: '操作结果' })
   @Column({
-    type: 'tinyint',
+    type: 'boolean',
     comment: '操作结果',
     nullable: true,
   })
@@ -89,7 +89,7 @@ export class Log {
   })
   duration?: number;
 
-  @ApiProperty({ description: '异常信息' })
+  @ApiProperty({ description: '异常信息', nullable: true })
   @Column({
     name: 'error_message',
     type: 'varchar',
@@ -129,6 +129,10 @@ export class Log {
   userAgent?: string;
 
   @ApiProperty({ description: '创建时间' })
-  @CreateDateColumn({ type: 'timestamp', comment: '创建时间' })
-  created_at: Date;
+  @CreateDateColumn({
+    name: 'created_at',
+    type: 'timestamp',
+    comment: '创建时间',
+  })
+  createdAt: Date;
 }

@@ -12,11 +12,6 @@ export enum MenuType {
   /** 按钮 */ BUTTON = 1,
 }
 
-export enum StatusEnum {
-  /** 停用 */ DISABLED = 0,
-  /** 启用 */ ENABLED = 1,
-}
-
 export enum DeviceType {
   console = '游戏主机',
   desktop = '电脑',

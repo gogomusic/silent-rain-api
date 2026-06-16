@@ -31,7 +31,12 @@ export class AuthService {
   /** 生成Token */
   generateAccessToken(id: number, username: string) {
     const payload = { username, sub: id };
-    return this.jwtService.sign(payload);
+    const token = this.jwtService.sign(payload);
+
+    // 异步记录登录时间，不阻塞响应
+    void this.UserService.updateLastLoginAt(id);
+
+    return token;
   }
 
   /** 退出登录 */

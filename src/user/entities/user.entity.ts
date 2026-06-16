@@ -1,6 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BasicEntity } from 'src/common/entities/basic.entity';
+import { UserType } from 'src/common/enums/common.enum';
+import { Exclude, Expose } from 'class-transformer';
 import { Entity, Column } from 'typeorm';
+import { FileBaseDto } from 'src/common/file/dto/file-base.dto';
 
 @Entity('user')
 export class User extends BasicEntity {
@@ -24,19 +27,65 @@ export class User extends BasicEntity {
   @Column({ nullable: true, comment: '头像' })
   avatar: number;
 
-  @ApiProperty({ description: '用户类型，0-普通用户，1-超级管理员' })
-  @Column({
-    type: 'tinyint',
-    default: 0,
-    comment: '用户类型，0-普通用户，1-超级管理员',
+  @ApiProperty({
+    description: '用户类型，0-超级管理员，1-普通用户',
+    default: UserType.NORMAL_USER,
   })
-  type: number;
+  @Column({
+    type: 'enum',
+    enum: UserType,
+    enumName: 'UserType',
+    default: UserType.NORMAL_USER,
+    comment: '用户类型，0-超级管理员，1-普通用户',
+  })
+  @Exclude()
+  type: UserType;
 
   @ApiProperty({ description: '状态' })
-  @Column({ default: 1, comment: '状态' })
+  @Column({
+    type: 'boolean',
+    default: true,
+    comment: '状态',
+  })
   status: boolean;
 
-  @ApiProperty({ description: '备注' })
-  @Column({ nullable: true, comment: '备注' })
-  remark: string;
+  @ApiProperty({ description: '描述' })
+  @Column({ comment: '描述', nullable: true })
+  description?: string;
+
+  @ApiProperty({ description: '上次登录时间' })
+  @Column({
+    type: 'datetime',
+    nullable: true,
+    comment: '上次登录时间',
+    name: 'last_login_at',
+  })
+  lastLoginAt: Date | null;
+
+  @ApiProperty({
+    description: '角色',
+    type: [Number],
+    readOnly: true,
+    default: [],
+  })
+  @Expose()
+  roles: number[];
+
+  @ApiProperty({
+    description: '头像详情',
+    type: FileBaseDto,
+    readOnly: true,
+    nullable: true,
+  })
+  @Expose()
+  avatarInfo: FileBaseDto | null;
+
+  @ApiProperty({
+    description: '权限',
+    type: [Number],
+    readOnly: true,
+    default: [],
+  })
+  @Expose()
+  permissions: number[];
 }

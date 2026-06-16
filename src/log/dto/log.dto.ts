@@ -29,7 +29,7 @@ export class LogDto extends ListBaseDto {
   @IsOptional()
   @IsDate()
   @Type(() => Date)
-  start_date?: Date;
+  startDate?: Date;
 
   @ApiProperty({
     description: '结束日期',
@@ -38,7 +38,7 @@ export class LogDto extends ListBaseDto {
   @IsOptional()
   @IsDate()
   @Type(() => Date)
-  end_date?: Date;
+  endDate?: Date;
 
   @ApiProperty({ description: '模块', required: false })
   @IsOptional()

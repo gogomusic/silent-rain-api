@@ -16,11 +16,11 @@ export class ResponseDto<T = unknown> implements ResponseStructure<T> {
   @Expose()
   readonly success: boolean;
 
-  @ApiProperty({ description: '响应数据', required: false })
+  @ApiProperty({ description: '响应数据', required: false, nullable: true })
   @Expose()
   readonly data?: T;
 
-  @ApiProperty({ description: '错误码', type: Number })
+  @ApiProperty({ description: '错误码', type: Number, required: false })
   @Expose()
   readonly errorCode?: ErrorCode;
 
@@ -33,6 +33,7 @@ export class ResponseDto<T = unknown> implements ResponseStructure<T> {
         items: { type: 'string' },
       },
     ],
+    required: false,
   })
   @Expose()
   readonly errorMessage?: string | string[];
@@ -41,6 +42,7 @@ export class ResponseDto<T = unknown> implements ResponseStructure<T> {
     description: '错误消息展示方式',
     enum: ErrorShowType,
     enumName: 'ErrorShowType',
+    required: false,
   })
   @Expose()
   readonly showType?: ErrorShowType;

@@ -7,12 +7,25 @@ import { AuthModule } from './auth/auth.module';
 import { MailModule } from './common/mail/mail.module';
 import { RedisModule } from './common/redis/redis.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import {
+  APP_FILTER,
+  APP_GUARD,
+  APP_INTERCEPTOR,
+  Reflector,
+} from '@nestjs/core';
 import { LoggerModule } from './common/logger/logger.module';
 import { LoggerMiddleware } from './common/logger/logger.middleware';
 import { HttpExceptionFilter } from './common/http/http-exception.filter';
 import { LogModule } from './log/log.module';
 import { LoggerInterceptor } from './common/logger/logger.interceptor';
+import { RoleModule } from './role/role.module';
+import { MenuModule } from './menu/menu.module';
+import { ClassSerializerInterceptor } from '@nestjs/common';
+import { PostTo200Interceptor } from './common/http/interceptors/post-to-200.interceptor';
+import { ResponseInterceptor } from './common/http/interceptors/response-interceptor';
+import { RoleAuthGuard } from './auth/role-auth.guard';
+import { FileModule } from './common/file/file.module';
+import { InitModule } from './common/init/init.module';
 
 const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
 
@@ -51,6 +64,10 @@ const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
         // 文件上传
         FILE_UPLOAD_DIR: Joi.string().required(),
         FILE_UPLOAD_LIMIT_MB: Joi.number().required(),
+        // 系统初始化
+        DEFAULT_ADMIN_USERNAME: Joi.string().required(),
+        DEFAULT_ADMIN_PASSWORD: Joi.string().required(),
+        DEFAULT_ADMIN_EMAIL: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRootAsync({
@@ -79,6 +96,10 @@ const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
     MailModule,
     LoggerModule,
     LogModule,
+    RoleModule,
+    MenuModule,
+    FileModule,
+    InitModule,
   ],
   providers: [
     {
@@ -86,8 +107,26 @@ const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
       useClass: JwtAuthGuard,
     },
     {
+      provide: APP_GUARD,
+      useClass: RoleAuthGuard,
+    },
+    {
       provide: APP_INTERCEPTOR,
       useClass: LoggerInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useFactory: (reflector: Reflector) =>
+        new ClassSerializerInterceptor(reflector),
+      inject: [Reflector],
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: PostTo200Interceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
     },
     {
       provide: APP_FILTER,

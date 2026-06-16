@@ -1,17 +1,19 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { getServerIps } from './common/utils/os';
 import chalk from 'chalk';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { ResponseDto } from './common/http/dto/response.dto';
-import { ResponseInterceptor } from './common/http/interceptors/response-interceptor';
-import { PostTo200Interceptor } from './common/http/interceptors/post-to-200.interceptor';
 import { Logger } from './common/logger/logger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { logger: false });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: ['log', 'error', 'warn', 'debug', 'verbose'],
+  });
   app.setGlobalPrefix('api').useLogger(app.get(Logger));
 
   const swaggerConfig = new DocumentBuilder()
@@ -38,24 +40,23 @@ async function bootstrap() {
     jsonDocumentUrl: 'api-json',
   });
 
-  app
-    .useGlobalInterceptors(
-      new ClassSerializerInterceptor(app.get(Reflector)),
-      new PostTo200Interceptor(),
-      new ResponseInterceptor(),
-    )
-    .useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        transform: true,
-      }),
-    );
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
 
   const configService = app.get(ConfigService);
   const PORT = Number(configService.get<string>('PORT'));
   const NODE_ENV = configService.get<string>('NODE_ENV')!;
+  const UPLOAD_DIR = configService.get<string>('FILE_UPLOAD_DIR')!;
 
-  await app.listen(PORT);
+  await app
+    .useStaticAssets(join(process.cwd(), UPLOAD_DIR), {
+      prefix: '/' + UPLOAD_DIR,
+    })
+    .listen(PORT);
 
   return { PORT, NODE_ENV };
 }
@@ -78,4 +79,6 @@ bootstrap()
   .then(({ PORT, NODE_ENV }) => {
     printBanner(PORT, NODE_ENV);
   })
-  .catch((error) => console.error(error));
+  .catch((error) =>
+    console.error(chalk.red.bold('Nest应用启动失败：' + error)),
+  );

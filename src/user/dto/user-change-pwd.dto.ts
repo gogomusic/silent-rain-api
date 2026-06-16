@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, MinLength } from 'class-validator';
 
-export class ChangePwdDto {
+export class UserChangePwdDto {
   @ApiProperty({ description: '旧密码' })
   @IsNotEmpty({ message: '旧密码不能为空' })
   oldPassword: string;

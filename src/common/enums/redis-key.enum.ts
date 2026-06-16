@@ -8,6 +8,8 @@ export const enum RedisKeyPrefix {
   EMAIL_LIMIT = 'email:limit:',
   /** 用户信息 */
   USER_INFO = 'user:info:',
+  /** 用户权限标识 */
+  USER_PERMS = 'user:perms:',
   /** Token黑名单 */
   TOKEN_BLACKLIST = 'token:blacklist:',
 }

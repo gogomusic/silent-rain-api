@@ -162,7 +162,7 @@ export class LoggerInterceptor implements NestInterceptor {
             'Logger Interceptor',
           );
         } catch (e) {
-          console.error('Failed to update log:', e);
+          console.error('操作日志更新操作失败:', e);
         }
       });
   }

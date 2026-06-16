@@ -3,10 +3,12 @@ import {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
+  Inject,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ResponseDto } from '../dto/response.dto';
+import { Logger } from 'src/common/logger/logger';
 
 /** 响应转换拦截器
  *
@@ -18,16 +20,32 @@ export class ResponseInterceptor<T> implements NestInterceptor<
   T,
   ResponseDto<T>
 > {
+  @Inject(Logger)
+  private readonly logger: Logger;
+
   intercept(
-    _context: ExecutionContext,
+    context: ExecutionContext,
     next: CallHandler,
   ): Observable<ResponseDto<T>> {
     return next.handle().pipe(
       map((data) => {
+        let result: ResponseDto<any>;
         if (data instanceof ResponseDto) {
-          return data;
-        }
-        return ResponseDto.success(data);
+          result = data;
+        } else result = ResponseDto.success(data);
+
+        const req = context.getArgByIndex(1).req;
+        const logFormat = `
+--------------------------------------------------------------------------------
+Url:      ${req.originalUrl}
+Method:   ${req.method}
+IP:       ${req.ip}
+Response: ${JSON.stringify(result)}
+--------------------------------------------------------------------------------
+        `;
+        this.logger.log(logFormat, 'Response Interceptor');
+
+        return result;
       }),
     );
   }

@@ -37,6 +37,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         throw new UnauthorizedException();
       }
     }
-    return this.UserService.findOneById(payload.sub);
+    return this.UserService.findOneById(payload.sub, true);
   }
 }
