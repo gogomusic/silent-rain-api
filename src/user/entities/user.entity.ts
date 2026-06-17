@@ -82,10 +82,10 @@ export class User extends BasicEntity {
 
   @ApiProperty({
     description: '权限',
-    type: [Number],
+    type: [String],
     readOnly: true,
     default: [],
   })
   @Expose()
-  permissions: number[];
+  permissions: string[];
 }
