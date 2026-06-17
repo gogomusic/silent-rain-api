@@ -12,4 +12,6 @@ export const enum RedisKeyPrefix {
   USER_PERMS = 'user:perms:',
   /** Token黑名单 */
   TOKEN_BLACKLIST = 'token:blacklist:',
+  /** 字典数据 */
+  DICT = 'dict:',
 }

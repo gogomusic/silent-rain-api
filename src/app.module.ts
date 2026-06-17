@@ -26,6 +26,7 @@ import { ResponseInterceptor } from './common/http/interceptors/response-interce
 import { RoleAuthGuard } from './auth/role-auth.guard';
 import { FileModule } from './common/file/file.module';
 import { InitModule } from './common/init/init.module';
+import { DictModule } from './dict/dict.module';
 
 const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
 
@@ -98,6 +99,7 @@ const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
     LogModule,
     RoleModule,
     MenuModule,
+    DictModule,
     FileModule,
     InitModule,
   ],
