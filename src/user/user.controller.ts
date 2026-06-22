@@ -28,6 +28,7 @@ import { UserSetRolesDto } from './dto/user-set-roles.dto';
 import { Menu } from 'src/menu/entities/menu.entity';
 import { UserUpdateSelfDto } from './dto/user-update-self.dto';
 import { UserListDto } from './dto/user-list.dto';
+import { UserLoginVo } from './vo/user-login.vo';
 
 @LogModule('用户管理')
 @ApiTags('用户管理 /user')
@@ -87,14 +88,14 @@ export class UserController {
     summary: '登录',
   })
   @ApiSecurity({})
-  @ApiResponse({ model: String })
+  @ApiResponse({ model: UserLoginVo })
   @LogAction('用户登录')
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
   login(@Body() _userLoginDto: UserLoginDto, @Req() req: { user: User }) {
     const { id, username } = req.user;
-    return this.authService.generateAccessToken(id, username);
+    return { token: this.authService.generateAccessToken(id, username) };
   }
 
   @ApiOperation({
