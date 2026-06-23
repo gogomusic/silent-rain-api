@@ -1,6 +1,7 @@
 {
   "js/ts.tsdk.path": "node_modules\\typescript\\lib",
   "cSpell.words": [
+    "fname",
     "ISIN",
     "ISSN",
     "rimraf",
@@ -8,5 +9,8 @@
     "smarttv",
     "tinyint",
     "unrs"
-  ]
+  ],
+  "[shellscript]": {
+    "files.eol": "\n"
+  }
 }

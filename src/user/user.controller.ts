@@ -41,11 +41,11 @@ export class UserController {
   ) {}
 
   @ApiOperation({
-    summary: '发送注册验证码',
-    description: '将注册验证码将发送至用户邮箱',
+    summary: '发送注册/改密验证码',
+    description: '将注册/改密验证码将发送至用户邮箱',
   })
   @ApiSecurity({})
-  @LogAction('发送注册验证码')
+  @LogAction('发送注册/改密验证码')
   @ApiResponse()
   @Get('captcha')
   @Public()

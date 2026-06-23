@@ -35,6 +35,11 @@ $ pnpm start:prod
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
 
+## 文档
+
+- [字典模块技术文档](./docs/dict-module.md)
+- [服务器部署文档](./docs/%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%83%A8%E7%BD%B2%E6%96%87%E6%A1%A3.md)
+
 ## 总体开发进度
 
 - [ ] 创建前台网站、后台管理系统和后端项目
@@ -65,6 +70,12 @@ When you're ready to deploy your NestJS application to production, there are som
   - [ ] 重复上传进行秒传
   - [ ] 下载时校验用户权限（通过元数据表）
   - [ ] 多文件上传、断点续传方案
+
+## 维护
+
+- [ ] 定期运行备份脚本
+
+- [ ] 定期备份数据库
 
 ## 常见BUG处理
 
